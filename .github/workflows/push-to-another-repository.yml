@@ -20,10 +20,6 @@ jobs:
             name: REPO_RYU_HYEJIN
             token: TOKEN_RYU_HYEJIN
             email: EMAIL_RYU_HYEJIN
-          - owner: OWNER_SANG_3
-            name: REPO_SANG_3
-            token: TOKEN_SANG_3
-            email: EMAIL_SANG_3
           - owner: OWNER_HS_PARK
             name: REPO_HS_PARK
             token: TOKEN_HS_PARK
@@ -32,6 +28,10 @@ jobs:
             name: REPO_OJA
             token: TOKEN_OJA
             email: EMAIL_OJA
+          - owner: OWNER_SANG_3
+            name: REPO_SANG_3
+            token: TOKEN_SANG_3
+            email: EMAIL_SANG_3
 
     steps:
       - uses: actions/checkout@v2
