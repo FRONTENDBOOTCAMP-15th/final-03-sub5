@@ -46,8 +46,8 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets[matrix.repo.token] }}
         with:
           source-directory: "output"
-          destination-github-username: ${{ matrix.repo.owner }}
-          destination-repository-name: ${{ matrix.repo.name }}
+          destination-github-username: ${{ secrets[matrix.repo.owner] }}
+          destination-repository-name: ${{ secrets[matrix.repo.name] }}
           user-email: ${{ secrets[matrix.repo.email] }}
           commit-message: ${{ github.event.commits[0].message }}
           target-branch: main
