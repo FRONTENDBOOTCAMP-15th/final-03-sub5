@@ -20,32 +20,36 @@ export default function AddRecordForm() {
       {/* 입력 폼 */}
       <form action="">
         <div className="grid grid-cols-2 gap-1 rounded-lg bg-[#ffffff] ">
-          {/* 날짜 입력 */}
-          <div className="">
-            <label className="" htmlFor="date">
-              날짜 *
-            </label>
-            <input type="date" id="date" name="date" className="w-fit px-3 border-[#c3c3c3] border-1 rounded-md " />
-          </div>
-          {/* 운동시간 입력 */}
-          <div className="container-workout">
-            <label className="" htmlFor="time">
-              운동시간 *
-            </label>
-            <div className="flex">
-              <input type="number" name="hour" placeholder="0" min="0" max="23" />시
-              <input type="number" name="min" placeholder="30" min="0" max="59" />분
-              <input type="number" name="sec" placeholder="0" min="0" max="59" />초
+          <div className="date-time-part">
+            {/* 날짜 입력 */}
+            <div className="">
+              <label className="" htmlFor="date">
+                날짜 *
+              </label>
+              <input type="date" id="date" name="date" className="w-fit px-3 border-[#c3c3c3] border-1 rounded-md " />
+            </div>
+            {/* 운동시간 입력 */}
+            <div className="container-workout">
+              <label className="" htmlFor="time">
+                운동시간 *
+              </label>
+              <div className="flex">
+                <input type="number" name="hour" placeholder="0" min="0" max="23" />시
+                <input type="number" name="min" placeholder="30" min="0" max="59" />분
+                <input type="number" name="sec" placeholder="0" min="0" max="59" />초
+              </div>
             </div>
           </div>
-          {/* 거리 입력 */}
-          <div className="container-distance">
-            <label className="" htmlFor="distance">
-              거리* &#40;km&#41;
-            </label>
-            <div className="flex">
-              <input type="number" name="distance" placeholder="0" min="0" max="100" />
-              km
+          <div>
+            {/* 거리 입력 */}
+            <div className="container-distance">
+              <label className="" htmlFor="distance">
+                거리* &#40;km&#41;
+              </label>
+              <div className="flex">
+                <input type="number" name="distance" placeholder="0" min="0" max="100" />
+                km
+              </div>
             </div>
           </div>
           {/* 페이스 자동입력 */}
@@ -64,7 +68,7 @@ export default function AddRecordForm() {
           {/* 러닝 */}
           <div>
             <input type="radio" id="running" name="exerciseType" value="running" defaultChecked className="hidden " />
-            <label htmlFor="running" className=" px-4 py-2 rounded-lg border bg-primary-light border-primary cursor-pointer">
+            <label htmlFor="running" className=" px-4 py-2 rounded-lg border bg-primary text-white border-primary cursor-pointer">
               러닝
             </label>
           </div>
