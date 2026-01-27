@@ -17,6 +17,9 @@ const config: Config = {
         notselectbtn: "#F4F4F4",
         "notselectbtn-border": "#686868",
       },
+      fontFamily: {
+        pretendard: ["Pretendard", "sans-serif"],
+      },
     },
   },
   plugins: [],
