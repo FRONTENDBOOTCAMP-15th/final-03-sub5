@@ -10,6 +10,8 @@ const config: Config = {
         "primary-dark": "#002340",
         secondary: "#60A5FA",
         "gray-custom": "#c3c3c3",
+        notselectbtn: "#F4F4F4",
+        "notselectbtn-border": "#686868",
       },
     },
   },
