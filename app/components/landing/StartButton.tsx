@@ -1,18 +1,19 @@
-"use client";
+import Link from "next/link";
 
-import { useRouter } from "next/navigation";
-
-export default function StartButton() {
-  const router = useRouter();
-
+export default function StartPage() {
   return (
-    <div className="fixed left-0 right-0 bottom-20 z-20 p-4">
-      <button
-        onClick={() => router.push("/auth/login")}
-        className="w-full py-4 rounded-2xl bg-[#003458] text-white text-lg font-semibold"
+    <div className="fixed left-0 right-0 bottom-16 px-4 z-20">
+      <Link
+        href="/auth/login"
+        className="
+          block w-full text-center
+          px-3 py-2.5 rounded-2xl
+          bg-secondary text-white
+          text-lg font-semibold
+        "
       >
         시작하기
-      </button>
+      </Link>
     </div>
   );
 }

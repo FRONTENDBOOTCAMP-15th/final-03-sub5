@@ -1,11 +1,15 @@
+import Image from "next/image";
+
 export default function LogoTitle() {
   return (
     <section className="relative min-h-screen">
       {/* 배경 이미지 */}
-      <img
-        src="/images/landing-runner.jpg"
+      <Image
+        src="/images/landing-bg.png"
         alt="러닝 이미지"
-        className="absolute inset-0 h-full w-full object-cover"
+        fill // 이미지가 부모 요소를 꽉 채우게 해주기
+        priority // 배경이미지 이므로 첫 화면 우선 로딩
+        className="object-cover"
       />
 
       {/* 이미지 어둡게(오버레이) */}
@@ -15,7 +19,13 @@ export default function LogoTitle() {
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center text-white px-6">
         <div className="w-full flex flex-col items-center text-center">
           {/* 로고 */}
-          <h1 className="text-4xl font-bold">Sub.5</h1>
+          <Image
+            src="/images/landing-logo.svg"
+            alt="로고"
+            priority
+            width={128}
+            height={128}
+          />
 
           {/* 문구 */}
           <p className="mt-3 text-lg leading-relaxed">
