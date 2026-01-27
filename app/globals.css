@@ -1,4 +1,7 @@
+@import url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/pretendard.css");
+
 @import "tailwindcss";
+
 :root {
   --color-primary: #000080;
   --color-secondary: #003458;
