@@ -16,6 +16,8 @@ const config: Config = {
         "gray-custom": "#c3c3c3",
         notselectbtn: "#F4F4F4",
         "notselectbtn-border": "#686868",
+        "sub-title": "#6B7280",
+        error: "#E85C5C",
       },
       fontFamily: {
         pretendard: ["Pretendard", "sans-serif"],
