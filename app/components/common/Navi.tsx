@@ -1,6 +1,6 @@
 export default function Navi() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-sm">
+    <nav className="sticky bottom-0 left-0 right-0 bg-white border-t shadow-sm">
       <ul className="flex justify-around items-center py-2">
         <li className="flex flex-col items-center text-gray-400 text-xs">
           <span className="text-xl">
