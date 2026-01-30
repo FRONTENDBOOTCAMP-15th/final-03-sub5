@@ -1,4 +1,40 @@
+"use client";
+import { useState } from "react";
+import { LevelInfo } from "../types";
 export default function LevelHeader() {
+  const [level, setLevel] = useState([]);
+
+  const LevelDummy: LevelInfo[] = [
+    {
+      level: "초급",
+      icon: "🌱",
+      pace: "7,00",
+      totalDistance: 5,
+      monthlyRuns: 3,
+    },
+    {
+      level: "중급",
+      icon: "🌱",
+      pace: "6,00",
+      totalDistance: 10,
+      monthlyRuns: 3,
+    },
+    {
+      level: "고급",
+      icon: "🌱",
+      pace: "8,00",
+      totalDistance: 21,
+      monthlyRuns: 3,
+    },
+    {
+      level: "초급",
+      icon: "🌱",
+      pace: "9,00",
+      totalDistance: 42,
+      monthlyRuns: 3,
+    },
+  ];
+
   return (
     <>
       {/* 탭 LevelIcon 상단 */}
