@@ -2,6 +2,7 @@ import { LevelInfo } from "../types";
 
 export const LevelDummy: LevelInfo[] = [
   {
+    userId: 1,
     level: "초급",
     icon: "🌱",
     pace: "7,00",
@@ -9,6 +10,7 @@ export const LevelDummy: LevelInfo[] = [
     monthlyRuns: 3,
   },
   {
+    userId: 2,
     level: "중급",
     icon: "🏃",
     pace: "6,00",
@@ -16,6 +18,7 @@ export const LevelDummy: LevelInfo[] = [
     monthlyRuns: 3,
   },
   {
+    userId: 3,
     level: "고급",
     icon: "🔥",
     pace: "8,00",
@@ -23,6 +26,7 @@ export const LevelDummy: LevelInfo[] = [
     monthlyRuns: 3,
   },
   {
+    userId: 4,
     level: "초급",
     icon: "🌱",
     pace: "9,00",
