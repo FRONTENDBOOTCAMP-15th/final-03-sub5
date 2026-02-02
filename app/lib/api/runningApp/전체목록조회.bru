@@ -1,11 +1,11 @@
 meta {
-  name: 기록삭제
+  name: 전체목록조회
   type: http
-  seq: 5
+  seq: 6
 }
 
-delete {
-  url: {{url}}/posts/8
+get {
+  url: {{url}}/posts/
   body: json
   auth: inherit
 }

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 const TEST_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjQsInR5cGUiOiJ1c2VyIiwiaWF0IjoxNzY5ODU5MDk0LCJleHAiOjE3Njk5NDU0OTQsImlzcyI6IkZFQkMifQ.Uy-kTkoupc5Tggt19TgfxLqRlH5az0WB7NDvMBcxPBo";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjQsInR5cGUiOiJ1c2VyIiwiaWF0IjoxNzY5OTM5NDA3LCJleHAiOjE3NzAwMjU4MDcsImlzcyI6IkZFQkMifQ.TAFy92q4pEKyFGemkDzY8c2IkjEcm6Wwr9G6lDh4K78";
 
 export default function RecordPage() {
   const [data, setData] = useState<RunningRecord[]>([]);
@@ -28,9 +28,19 @@ export default function RecordPage() {
         console.log("데이터 조회시작");
         const result = await getMyRecords(TEST_TOKEN);
         console.log("응답", result);
+        console.log("🔵 TEST_TOKEN:", TEST_TOKEN);
+        console.log("🔵 TEST_TOKEN 길이:", TEST_TOKEN.length);
+
         if (result.ok) {
-          setData(result.item);
+          const records = result.item.filter((item) => item.extra);
+
           console.log("기록 개수:", result.item.length);
+          console.log("기록 개수:", records.length);
+          console.log("🟢 필터링된 기록들:", records);
+          console.log("🟢 필터링된 기록들:", result);
+
+          setData(records);
+          ``;
         }
       } catch (error) {
         console.error("에러 발생", error);
@@ -142,84 +152,49 @@ export default function RecordPage() {
         <p className="text-gray-500 text-sm pb-3">최근 활동 내역을 확인 하세요</p>
         {/* 기록 리스트 */}
         <div className="space-y-3 ">
-          {/* 기록 아이템 1 */}
-          <div className="border rounded-lg border-gray-200 px-1 py-1">
-            <div className="flex items-center  gap-3 mb-2">
-              {/* 날짜 + 뱃지들 */}
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-xs px-3">1월 12일</span>
-                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">맑음</span>
-                <Link href="records/1/edit" className="bg-gray-300 text-gray-700 text-xs px-2 py-0.5 rounded">
-                  수정
-                </Link>
-              </div>
+          {/* 기록 아이템 1**************************************************************** */}
 
-              {/* 데이터들 */}
-              <div className="flex items-center text-xs gap-3 ml-auto">
-                <span className="font-semibold text-primary">6.0</span>
-                <span className="font-semibold text-red-500">35</span>
-                <span className="font-semibold text-gray-700">5:00</span>
-                <span className="font-semibold text-gray-500">480</span>
+          {/* 기록 아이템 1**************************************************************** */}
+
+          {/* 기록 아이템 2**************************************************************** */}
+          {data.map((record) => (
+            <div key={record._id} className="border rounded-lg border-gray-200 px-1 py-1">
+              <div className="flex items-center  gap-3 mb-2">
+                {/* 날짜 + 뱃지들 */}
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-xs px-3">{record.extra.date}</span>
+                  <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded">흐림</span>
+                  <Link href={`records/${record._id}/edit`} className="bg-gray-300 text-gray-700 text-xs px-2 py-0.5 rounded">
+                    수정
+                  </Link>
+                </div>
+                {/* 데이터들 */}
+                <div className="flex items-center text-xs gap-3 ml-auto">
+                  <span className="font-semibold text-primary">{record.extra.distance || "-"}</span>
+                  <span className="font-semibold text-red-500">{record.extra.duration || "-"}</span>
+                  <span className="font-semibold text-gray-700">{record.extra.pace || "-"}</span>
+                  <span className="font-semibold text-gray-500">{record.extra.calories || "-"}</span>
+                </div>
+              </div>
+              {/* 2줄: 장소 + 라벨 */}
+              <div className="flex items-center justify-between ml-13">
+                {/* 장소 */}
+                <div className="flex items-center gap-1 text-xs text-gray-600">
+                  <span>📍</span>
+                  <span>{record.extra.location || "장소 없음"}</span>
+                </div>
+                {/* 라벨들 */}
+                <div className="flex gap-3 text-xs text-gray-400">
+                  <span>km</span>
+                  <span>분</span>
+                  <span>/km</span>
+                  <span>kcal</span>
+                </div>
               </div>
             </div>
+          ))}
 
-            {/* 2줄: 장소 + 라벨 */}
-            <div className="flex items-center justify-between ml-13">
-              {/* 장소 */}
-              <div className="flex items-center gap-1 text-xs text-gray-600">
-                <span>📍</span>
-                <span>광교호수공원</span>
-              </div>
-
-              {/* 라벨들 */}
-              <div className="flex gap-3 text-xs text-gray-400">
-                <span>km</span>
-                <span>분</span>
-                <span>/km</span>
-                <span>kcal</span>
-              </div>
-            </div>
-          </div>
-          {/* 기록 아이템 2 */}
-          <div className="border rounded-lg border-gray-200 px-1 py-1">
-            <div className="flex items-center  gap-3 mb-2">
-              {/* 아이콘 */}
-
-              {/* 날짜 + 뱃지들 */}
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-xs px-3">1월 17일</span>
-                <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded">흐림</span>
-                <Link href="records/1/edit" className="bg-gray-300 text-gray-700 text-xs px-2 py-0.5 rounded">
-                  수정
-                </Link>
-              </div>
-
-              {/* 데이터들 */}
-              <div className="flex items-center text-xs gap-3 ml-auto">
-                <span className="font-semibold text-primary">6.0</span>
-                <span className="font-semibold text-red-500">35</span>
-                <span className="font-semibold text-gray-700">5:00</span>
-                <span className="font-semibold text-gray-500">480</span>
-              </div>
-            </div>
-
-            {/* 2줄: 장소 + 라벨 */}
-            <div className="flex items-center justify-between ml-13">
-              {/* 장소 */}
-              <div className="flex items-center gap-1 text-xs text-gray-600">
-                <span>📍</span>
-                <span>광교호수공원</span>
-              </div>
-
-              {/* 라벨들 */}
-              <div className="flex gap-3 text-xs text-gray-400">
-                <span>km</span>
-                <span>분</span>
-                <span>/km</span>
-                <span>kcal</span>
-              </div>
-            </div>
-          </div>
+          {/* 기록 아이템 2**************************************************************** */}
         </div>
       </div>
       {/* 평균 페이스 통계 */}

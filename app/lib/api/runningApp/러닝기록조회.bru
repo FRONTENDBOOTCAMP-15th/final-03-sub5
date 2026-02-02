@@ -10,6 +10,14 @@ get {
   auth: inherit
 }
 
+script:post-response {
+  // 로그인 성공 후
+  if(res.status === 200){
+    bru.setEnvVar('accessToken', res.body.item.token.accessToken);
+    bru.setEnvVar('refreshToken', res.body.item.token.refreshToken);
+  }
+}
+
 settings {
   encodeUrl: true
   timeout: 0
