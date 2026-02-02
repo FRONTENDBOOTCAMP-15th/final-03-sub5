@@ -139,7 +139,7 @@ export default function TermsPage() {
           </button> */}
           <Link
             href="/auth/signup"
-            className="h-14 w-full rounded-2xl bg-[#003458] text-base font-semibold text-white flex items-center justify-center"
+            className="h-14 w-full rounded-2xl bg-primary text-base font-semibold text-white flex items-center justify-center"
           >
             동의하고 시작하기
           </Link>

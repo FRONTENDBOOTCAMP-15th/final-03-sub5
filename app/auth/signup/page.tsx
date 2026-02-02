@@ -45,7 +45,7 @@ export default function SignupPage() {
                   placeholder="이메일"
                   className="
                     w-full border-0 border-b-2 border-gray-300 px-1 py-3 pr-10 text-base
-                    caret-secondary focus:border-[#003458] focus:outline-none"
+                    caret-primary focus:border-primary focus:outline-none"
                 />
                 {/* 오른쪽 아이콘(지우기) - 마크업만 */}
                 <button
@@ -76,8 +76,8 @@ export default function SignupPage() {
                   name="password"
                   placeholder="비밀번호"
                   className="
-                    w-full border-0 border-b-2 border-gray-300 px-1 py-3 pr-10 text-base caret-secondary 
-                    focus:border-secondary focus:outline-none"
+                    w-full border-0 border-b-2 border-gray-300 px-1 py-3 pr-10 text-base caret-primary 
+                    focus:border-primary focus:outline-none"
                 />
                 {/* 오른쪽 아이콘(보기) - 마크업만 */}
                 <button
@@ -109,7 +109,7 @@ export default function SignupPage() {
                   placeholder="비밀번호 재입력"
                   className="
                     w-full border-0 border-b-2 border-gray-300 px-1 py-3 pr-10 text-base 
-                    caret-secondary focus:border-secondary focus:outline-none"
+                    caret-primary focus:border-primary focus:outline-none"
                 />
                 {/* 오른쪽 아이콘(보기) - 마크업만 */}
                 <button
@@ -133,14 +133,15 @@ export default function SignupPage() {
         <div className="mt-auto pb-8 pt-10">
           <button
             type="button"
-            className="h-14 w-full rounded-2xl bg-secondary text-base font-semibold text-white"
+            className="h-14 w-full rounded-2xl bg-primary text-base font-semibold text-white"
+            onClick={() => router.push("/onboarding/profile")}
           >
             계정 생성
           </button>
 
-          <div className="mt-4 text-center text-xs text-secondary">
+          <div className="mt-4 text-center text-xs text-primary">
             이미 회원이신가요?{" "}
-            <Link href="/auth/login" className="font-semibold text-secondary">
+            <Link href="/auth/login" className="font-semibold text-primary">
               로그인
             </Link>
           </div>

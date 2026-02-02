@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   return (
     <form className="space-y-4">
       {/* 이메일 */}
@@ -14,7 +17,7 @@ export default function LoginForm() {
           required
           className={[
             "w-full border-0 border-b-2 border-gray-300 px-1 py-3 text-base",
-            "caret-secondary focus:border-b-secondary focus:outline-none",
+            "caret-primary focus:border-b-primary focus:outline-none",
           ].join(" ")}
         />
         {/* 에러 자리 (디자인 확인용) */}
@@ -30,7 +33,7 @@ export default function LoginForm() {
           required
           className={[
             "w-full border-0 border-b-2 border-gray-300 px-1 py-3 text-base",
-            "caret-secondary focus:border-secondary focus:outline-none",
+            "caret-primary focus:border-primary focus:outline-none",
           ].join(" ")}
         />
         {/* 에러 자리 (디자인 확인용) */}
@@ -48,9 +51,9 @@ export default function LoginForm() {
 
       {/* 로그인 버튼 */}
       <button
-        type="submit"
-        className="w-full rounded-2xl bg-secondary px-3 py-2.5 text-lg font-semibold text-white"
-        onClick={() => alert("로그인 연결 예정")}
+        type="button"
+        className="w-full rounded-2xl bg-primary px-3 py-2.5 text-lg font-semibold text-white"
+        onClick={() => router.push("/home")}
       >
         로그인
       </button>
@@ -58,7 +61,7 @@ export default function LoginForm() {
       <div className="mt-6 flex justify-center">
         <Link
           href="/auth/terms"
-          className="text-sm font-semibold text-secondary"
+          className="text-sm font-semibold text-[#003458]"
         >
           이메일 회원가입
         </Link>
