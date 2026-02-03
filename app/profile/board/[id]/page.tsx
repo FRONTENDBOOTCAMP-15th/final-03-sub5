@@ -1,3 +1,4 @@
+import CommentList from "@/app/profile/board/[id]/CommentList";
 import ProfileFooter from "@/app/profile/components/ProfileFooter";
 import ProfileHeader from "@/app/profile/components/ProfileHeader";
 
@@ -43,6 +44,8 @@ export default function PostDetailPage() {
           >
             삭제
           </button>
+
+          <CommentList />
         </div>
         {/* ●●●●● 답변하기 모달창 */}
         <div
