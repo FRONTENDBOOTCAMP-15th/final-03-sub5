@@ -5,19 +5,38 @@ import ProfileHeader from "@/app/profile/components/ProfileHeader";
 // import useUserStore from "@/zustand/user";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function ProfileHome() {
   // const { user, setUser } = useUserStore();
   // const isLogin = !!user;
 
-  // 🔥 현재 단계: 토큰 기준 로그인 여부 판단
-  const isLogin =
-    typeof window !== "undefined" && !!localStorage.getItem("accessToken");
+  // ★★★★★★★★★★★★★★★★★ 개발용 로그인 모킹 (토큰을 강제로 하나 넣어줌 나중에 제거)
 
-  // 🔥 로그아웃 처리 (임시)
+  const [isLogin, setIsLogin] = useState(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      return !!token;
+    }
+    return false;
+  });
+
+  // 매번 로그인 필요시마다 입력해서 사용
+  // localStorage.setItem("accessToken", "mock-token");
+  // location.reload();
+
+  const [isLogoutOpen, setIsLogOutOpen] = useState(false);
+
+  // ■■■■■■■■■■■■■■■■■■■■ 로그아웃 모달 오픈 함수
+  const openLogoutModal = () => {
+    setIsLogOutOpen(true);
+  };
+
+  // ■■■■■■■■■■■■■■■■■■■■ 로그아웃 처리 (임시)
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    window.location.reload();
+    setIsLogin(false);
+    setIsLogOutOpen(false);
   };
 
   return (
@@ -166,7 +185,7 @@ export default function ProfileHome() {
               <li className="py-4 border-b border-gray-200 cursor-pointer">
                 <button
                   className="flex items-center justify-between w-full cursor-pointer"
-                  onClick={handleLogout}
+                  onClick={openLogoutModal}
                 >
                   로그아웃
                   <Image
@@ -179,52 +198,56 @@ export default function ProfileHome() {
               </li>
             </ul>
           </main>
+        </>
+      )}
 
-          {/* ●●●●● 로그아웃 경고 모달 */}
-          <div
-            id="logout-modal"
-            className="fixed inset-0 z-50 flex items-center justify-center hidden"
-          >
-            {/* ★ dim 추가 */}
-            <div className="absolute inset-0 bg-black/50 z-0"></div>
+      {/* ●●●●● 로그아웃 경고 모달 */}
+      {isLogoutOpen && (
+        <div
+          id="logout-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
+          {/* ★ dim 추가 */}
+          <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-            {/* 모달 카드 */}
-            <div className="modal-logout-wrap px-8 w-full relative z-10">
-              <div className="modal-logout-setter rounded-[20px] mx-auto max-w-[420px] w-full bg-[#ffffff]">
-                <div className="relative w-full h-[160px] px-4 py-2 flex flex-col items-center justify-center">
-                  <Image
-                    src="/icons/logout.svg"
-                    alt="프로필 선택"
-                    width={64}
-                    height={64}
-                    className="object-contain"
-                  />
-                  <h2 className="mb-4 text-gray-600 font-bold text-xl">
-                    로그아웃하시겠어요?
-                  </h2>
-                  <p className="text-gray-400 font-semibold mb-4">
-                    로그아웃 시, 현재 세션이 종료됩니다.
-                  </p>
-                </div>
+          {/* 모달 카드 */}
+          <div className="modal-logout-wrap px-8 w-full relative z-10">
+            <div className="modal-logout-setter rounded-[20px] mx-auto max-w-[420px] w-full bg-[#ffffff]">
+              <div className="relative w-full h-[160px] px-4 py-2 flex flex-col items-center justify-center">
+                <Image
+                  src="/icons/logout.svg"
+                  alt="프로필 선택"
+                  width={64}
+                  height={64}
+                  className="object-contain"
+                />
+                <h2 className="mb-4 text-gray-600 font-bold text-xl">
+                  로그아웃하시겠어요?
+                </h2>
+                <p className="text-gray-400 font-semibold mb-4">
+                  로그아웃 시, 현재 세션이 종료됩니다.
+                </p>
+              </div>
 
-                <div className="modal-gallery-actions flex items-center justify-between gap-3 w-full p-3">
-                  <button
-                    type="button"
-                    className="w-1/2 bg-gray-200 border border-gray-200 rounded-[5px] py-3 cursor-pointer"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="button"
-                    className="w-1/2 border border-[#003458] rounded-[5px] py-3 bg-[#003458] text-white cursor-pointer"
-                  >
-                    로그아웃
-                  </button>
-                </div>
+              <div className="modal-gallery-actions flex items-center justify-between gap-3 w-full p-3">
+                <button
+                  type="button"
+                  className="w-1/2 bg-gray-200 border border-gray-200 rounded-[5px] py-3 cursor-pointer"
+                  onClick={() => setIsLogOutOpen(false)}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  className="w-1/2 border border-[#003458] rounded-[5px] py-3 bg-[#003458] text-white cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  로그아웃
+                </button>
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       <Navi />
