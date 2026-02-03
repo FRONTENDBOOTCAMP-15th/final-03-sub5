@@ -20,8 +20,10 @@ export async function addRecord(prevState: any, formData: FormData) {
     const memo = (formData.get("memo") as string) || "미입력";
     // duration 포멧
     const duration = `${hour.padStart(2, "0")}:${min.padStart(2, "0")}:${sec.padStart(2, "0")}`;
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjQsInR5cGUiOiJ1c2VyIiwiaWF0IjoxNzcwMDI2ODk2LCJleHAiOjE3NzAxMTMyOTYsImlzcyI6IkZFQkMifQ.VpdiA1k3JPa24DUZ14C272VZ2Kb9VE8Rqu4Cu7tPDDQ";
+    const token = formData.get("token") as string;
+    if (!token) {
+      return { error: "로그인이 필요합니다" };
+    }
     // api 호출
 
     const result = await createRecord(

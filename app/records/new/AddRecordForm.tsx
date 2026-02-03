@@ -1,5 +1,6 @@
 "use client";
 import { addRecord } from "@/app/action/records";
+import useUserStore from "@/zustand/user";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
@@ -7,6 +8,8 @@ import { useActionState, useEffect, useState } from "react";
 export default function AddRecordForm() {
   const [state, formAction, isPending] = useActionState(addRecord, null);
   const router = useRouter();
+
+  const user = useUserStore((state) => state.user);
 
   const [hour, setHour] = useState("");
   const [min, setMin] = useState("");
@@ -35,11 +38,19 @@ export default function AddRecordForm() {
   }, [hour, min, sec, distance]);
 
   useEffect(() => {
+    if (!user) {
+      alert("로그인이 필요합니다");
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  useEffect(() => {
     if (state?.success) {
       router.push("/records");
       router.refresh();
     }
   }, [state, router]);
+
   return (
     <>
       {/* 헤더 */}
@@ -54,6 +65,7 @@ export default function AddRecordForm() {
       </header>
       {/* 입력 폼 */}
       <form action={formAction} className="w-full">
+        <input type="hidden" name="token" value={user?.token?.accessToken || ""} />
         <div className="bg-white grid grid-cols-2 p-5 gap-4">
           {/* 날짜 입력 */}
           <div className="flex flex-col gap-2">
