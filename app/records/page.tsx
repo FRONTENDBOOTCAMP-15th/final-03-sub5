@@ -4,16 +4,16 @@ import Footer from "@/app/components/common/Footer";
 import Header from "@/app/components/common/Header";
 import Navi from "@/app/components/common/Navi";
 import { getMyRecords } from "@/app/lib/recordsAPI";
+import { calculateMonthlyStats, calculateWeeklyStats } from "@/app/lib/stats";
 import { RunningRecord } from "@/app/lib/types";
+import useUserStore from "@/zustand/user";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-
-const TEST_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjQsInR5cGUiOiJ1c2VyIiwiaWF0IjoxNzcwMDI2ODk2LCJleHAiOjE3NzAxMTMyOTYsImlzcyI6IkZFQkMifQ.VpdiA1k3JPa24DUZ14C272VZ2Kb9VE8Rqu4Cu7tPDDQ";
 
 export default function RecordPage() {
   const [data, setData] = useState<RunningRecord[]>([]);
 
+  // 페이지 위치 autoScrolling
   // const homeRef = useRef<HTMLDivElement>(null);
   const dailyRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -21,15 +21,36 @@ export default function RecordPage() {
   const monthRecordRef = useRef<HTMLDivElement>(null);
   const weeklyRecordRef = useRef<HTMLDivElement>(null);
 
+  const [weeklyStats, setWeeklyStats] = useState({
+    totalDistance: 0,
+    averagePace: "0:00",
+    weeklyRuns: 0,
+  });
+  const [monthlyStats, setMonthlyStats] = useState({
+    totalDistance: 0,
+    averagePace: "0:00",
+    monthlyRuns: 0,
+  });
+
+  const user = useUserStore((state) => state.user);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         console.log("데이터 조회시작");
-        const result = await getMyRecords(TEST_TOKEN);
+        const token = user?.token?.accessToken;
+        if (!token) {
+          console.log("로그인 필요");
+          return;
+        }
+        const result = await getMyRecords(token);
 
         if (result.ok) {
           const records = result.item.filter((item) => item.extra);
 
+          console.log("기록개수", records.length);
+          setWeeklyStats(calculateWeeklyStats(records));
+          setMonthlyStats(calculateMonthlyStats(records));
           setData(records);
         }
       } catch (error) {
@@ -37,7 +58,7 @@ export default function RecordPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [user]);
 
   const scrollToSection = (sectionName: "home" | "daily" | "stats" | "recent" | "monthRecord" | "weeklyRecord") => {
     if (sectionName === "home") {
@@ -129,7 +150,9 @@ export default function RecordPage() {
       {/* 주간 러닝 거리 차트 */}
       <div ref={weeklyRecordRef} className="bg-white scroll-mt-34 rounded-lg border border-gray-200 mx-4 my-3 p-5">
         <h2 className="text-lg font-semibold mb-2">주간 러닝 거리</h2>
-        <p className="text-sm text-gray-500 mb-4">210 &#40;km&#41;</p>
+        <p className="text-sm text-gray-500 mb-4">
+          {weeklyStats.totalDistance} &#40;km&#41; {weeklyStats.weeklyRuns} 회
+        </p>
         {/* 차트 */}
         <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
           <p className="text-gray-400">[차트 영역]</p>
@@ -138,7 +161,9 @@ export default function RecordPage() {
       {/* 월간 러닝 거리 */}
       <div ref={monthRecordRef} className="bg-white scroll-mt-34 rounded-lg border border-gray-200 mx-4 my-3 p-5">
         <h2 className="text-lg font-semibold mb-2">월간 러닝 거리</h2>
-        <p className="text-sm text-gray-500 mb-4">754 km</p>
+        <p className="text-sm text-gray-500 mb-4">
+          {monthlyStats.totalDistance} &#40;km&#41; {monthlyStats.monthlyRuns} 회
+        </p>
         {/* 차트 영역 - 나중에 Recharts 들어갈 자리 */}
         <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center border border-dashed border-gray-300">
           <p className="text-gray-400 text-sm">[월간 차트]</p>
@@ -201,11 +226,11 @@ export default function RecordPage() {
         <div className="flex justify-center gap-4">
           <div className="text-center p-4 rounded-lg border border-gray-200">
             <p className="text-gray-500 text-xs">주간페이스 평균</p>
-            <p className="text-lg font-bold">6:15 /km</p>
+            <p className="text-lg font-bold">{weeklyStats.averagePace} /km</p>
           </div>
           <div className="text-center p-4 rounded-lg border border-gray-200">
             <p className="text-gray-500 text-xs">월간페이스 평균</p>
-            <p className="text-lg font-bold">6:35 /km</p>
+            <p className="text-lg font-bold">{monthlyStats.averagePace} /km</p>
           </div>
         </div>
       </div>
