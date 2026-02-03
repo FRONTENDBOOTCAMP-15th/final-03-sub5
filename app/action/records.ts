@@ -1,0 +1,54 @@
+"use server";
+
+import { createRecord } from "@/app/lib/recordsAPI";
+import { redirect } from "next/navigation";
+
+export async function addRecord(prevState: any, formData: FormData) {
+  try {
+    console.log("🔵 Server Action 시작");
+
+    //폼 데이터
+    const date = formData.get("date") as string;
+    const hour = (formData.get("hour") as string) || "0";
+    const min = (formData.get("min") as string) || "0";
+    const sec = (formData.get("sec") as string) || "0";
+    const distance = formData.get("distance") as string;
+    const pace = formData.get("pace") as string;
+    const exerciseType = (formData.get("exerciseType") as string) || "running";
+    const location = (formData.get("location") as string) || "미입력";
+    const calories = (formData.get("kcal") as string) || "미입력";
+    const memo = (formData.get("memo") as string) || "미입력";
+    // duration 포멧
+    const duration = `${hour.padStart(2, "0")}:${min.padStart(2, "0")}:${sec.padStart(2, "0")}`;
+    const token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjQsInR5cGUiOiJ1c2VyIiwiaWF0IjoxNzcwMDI2ODk2LCJleHAiOjE3NzAxMTMyOTYsImlzcyI6IkZFQkMifQ.VpdiA1k3JPa24DUZ14C272VZ2Kb9VE8Rqu4Cu7tPDDQ";
+    // api 호출
+
+    const result = await createRecord(
+      {
+        title: `${date} 러닝`,
+        content: memo || undefined,
+        extra: {
+          date,
+          duration,
+          distance: parseFloat(distance),
+          pace,
+          exerciseType,
+          location: location || undefined,
+          calories: calories ? parseInt(calories) : undefined,
+        },
+      },
+      token,
+    );
+    // 호출 성공
+    if (result.ok) {
+      return { success: true };
+      // redirect("/records");
+    } else {
+      return { error: "저장 실패" };
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return { error: "에러 발생" };
+  }
+}

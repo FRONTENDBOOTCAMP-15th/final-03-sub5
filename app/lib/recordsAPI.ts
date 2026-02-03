@@ -9,7 +9,7 @@ export function getMyRecords(token: string) {
 
 // 전체 기록 목록 조회
 export function getAllRecords() {
-  return fetchAPI(`/posts?type=record`) as Promise<ApiListResponse<RunningRecord>>;
+  return fetchAPI(`/posts`) as Promise<ApiListResponse<RunningRecord>>;
 }
 
 // 기록 상세 조회
