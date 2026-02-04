@@ -1,9 +1,13 @@
 import { PostListItem } from "@/types/post";
+import Link from "next/link";
 
 export default function ListItem({ post }: { post: PostListItem }) {
   return (
     <li className="border-b border-gray-200 px-2 py-3">
-      <a className="cursor-pointer flex flex-col gap-2 w-full">
+      <Link
+        href={`/profile/board/${post._id}`}
+        className="cursor-pointer flex flex-col gap-2 w-full"
+      >
         <div className="flex gap-2">
           <span className="px-1 text-gray-500">
             [ {post.repliesCount > 0 ? "답변완료" : "답변대기"} ]
@@ -18,7 +22,7 @@ export default function ListItem({ post }: { post: PostListItem }) {
             {post.createdAt}
           </span>
         </div>
-      </a>
+      </Link>
     </li>
   );
 }
