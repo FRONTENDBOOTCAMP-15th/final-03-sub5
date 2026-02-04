@@ -6,7 +6,7 @@ import useUserStore from "@/zustand/user";
 import { ArrowLeft } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
-
+// 수정페이지
 export default function EditRecordPage() {
   // const [state, formAction, isPending] = useActionState(createRecord)
   const router = useRouter();

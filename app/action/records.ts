@@ -17,8 +17,9 @@ export async function addRecord(prevState: any, formData: FormData) {
     const exerciseType = (formData.get("exerciseType") as string) || "running";
     const location = (formData.get("location") as string) || "미입력";
     const calories = (formData.get("kcal") as string) || "미입력";
-    const memo = (formData.get("memo") as string) || "미입력";
+    const memo = formData.get("memo") as string;
     // duration 포멧
+
     const duration = `${hour.padStart(2, "0")}:${min.padStart(2, "0")}:${sec.padStart(2, "0")}`;
     const token = formData.get("token") as string;
     if (!token) {

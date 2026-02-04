@@ -11,7 +11,7 @@ import useUserStore from "@/zustand/user";
 import { toBeChecked } from "@testing-library/jest-dom/matchers";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-
+// 메인페이지
 export default function RecordPage() {
   const [data, setData] = useState<RunningRecord[]>([]);
 
@@ -132,7 +132,7 @@ export default function RecordPage() {
       </div>
       {/* 데이터 작업 버튼 탭 */}
       <div className="flex gap-3 justify-center py-4">
-        <button className="bg-primary text-sm text-white px-5 py-2 rounded-lg">필터</button>
+        <button className="bg-primary text-sm text-white px-5 py-2 rounded-lg">전체 기록보기</button>
         <button className="text-sm border-gray-200 border px-5 py-2 rounded-lg">내보내기</button>
         <Link href="/records/new" className="text-sm border-gray-200 border px-5 py-2 rounded-lg">
           기록추가
