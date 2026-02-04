@@ -46,12 +46,13 @@ export interface ApiListResponse<T> {
   item: T[];
 }
 // 통계는 별도 인터페이스
+// 주간 통계
 export interface WeeklyStats {
   totalDistance: number;
   averagePace: string;
   weeklyRuns: number;
 }
-
+// 월간 통계
 export interface MonthlyStats {
   totalDistance: number;
   averagePace: string;
