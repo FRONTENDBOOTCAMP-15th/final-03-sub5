@@ -341,3 +341,20 @@ export function outdoorGrade(score: number): "좋음" | "보통" | "나쁨" {
   if (score >= 50) return "보통";
   return "나쁨";
 }
+
+
+export function getCurrentTimeKoreanFormat(): string {
+  const now = new Date();
+
+  const month = now.getMonth() + 1; // 0-based
+  const day = now.getDate();
+
+  let hours = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+
+  const period = hours < 12 ? "오전" : "오후";
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  return `${month}월 ${day}일 ${period} ${hours}:${minutes}`;
+}

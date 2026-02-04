@@ -20,10 +20,7 @@ export async function GET(req: Request) {
     );
 
     if (!res.ok) {
-      return NextResponse.json(
-        { error: "기상청 API 실패" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "기상청 API 실패" }, { status: 500 });
     }
 
     const text = await res.text();
@@ -41,7 +38,7 @@ export async function GET(req: Request) {
     const weather: KmaObservation = {
       CA_TOT: Number(c[25]),
       WW: Number(c[24].slice(0, 2)),
-      TA: Number(c[11]),
+      TA: Math.floor(Number(c[11])),
       HM: Number(c[13]),
       WS: Number(c[3]),
       VS: Number(c[32]),
@@ -50,9 +47,6 @@ export async function GET(req: Request) {
     return NextResponse.json(weather);
   } catch (e) {
     console.error(e);
-    return NextResponse.json(
-      { error: "서버 오류" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }

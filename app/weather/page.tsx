@@ -26,32 +26,8 @@ import {
   getWeatherIcon,
   outdoorScore,
   outdoorGrade,
+  getCurrentTimeKoreanFormat,
 } from "@/lib/utils";
-
-const KAKAO_REST_API_KEY = "6bfd0836fd0a724e514a804ef6561357";
-
-/*
-const KAKAO_REST_API_KEY =
-  process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!;
-*/
-
-/* ================= Utils ================= */
-
-function getCurrentTimeKoreanFormat(): string {
-  const now = new Date();
-
-  const month = now.getMonth() + 1; // 0-based
-  const day = now.getDate();
-
-  let hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-
-  const period = hours < 12 ? "오전" : "오후";
-  hours = hours % 12;
-  if (hours === 0) hours = 12;
-
-  return `${month}월 ${day}일 ${period} ${hours}:${minutes}`;
-}
 
 export async function getLegalDongName(
   pos: LocationCoords,
@@ -116,15 +92,12 @@ export default function WeatherPage() {
         const coords = await getCoordinates();
         setPos(coords);
 
-        const dong = await getLegalDongName(coords, KAKAO_REST_API_KEY);
+        const dong = await getLegalDongName(coords, process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!);
         setDongName(dong);
+        setDateTime(getCurrentTimeKoreanFormat());
 
-        //console.log("법정동:", dong);
-        const dateTime = getCurrentTimeKoreanFormat();
-        setDateTime(dateTime);
-        
-              const w = await getWeatherData(108);
-      setWeather(w);
+        const w = await getWeatherData(108);
+        setWeather(w);
       } catch (e) {
         console.error(e);
       }
@@ -169,7 +142,7 @@ export default function WeatherPage() {
                     <span className="text-xl text-gray-500 ml-1">°C</span>
                   </div>
                 </>
-              )}              
+              )}
             </div>
           </div>
 
@@ -180,7 +153,7 @@ export default function WeatherPage() {
                   src="/icons/humidity-mid-outline.svg"
                   width={24}
                   height={24}
-                  alt=""
+                  alt="습도"
                 />
               </div>
               <div className="text-left">
@@ -194,7 +167,7 @@ export default function WeatherPage() {
                   src="/icons/wind-line.svg"
                   width={24}
                   height={24}
-                  alt=""
+                  alt="풍속"
                 />
               </div>
               <div className="text-left">
@@ -209,7 +182,7 @@ export default function WeatherPage() {
                   src="/icons/view-fill.svg"
                   width={24}
                   height={24}
-                  alt=""
+                  alt="가시거리"
                 />
               </div>
               <div className="text-left">
@@ -224,7 +197,7 @@ export default function WeatherPage() {
                   src="/icons/ultraviolet-outline.svg"
                   width={24}
                   height={24}
-                  alt=""
+                  alt="자외선"
                 />
               </div>
               <div className="text-left">
