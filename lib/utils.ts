@@ -9,6 +9,8 @@ import type {
   WeatherIconKey,
   WeatherInput,
   KmaObservation,
+  DailyForecast,
+  DayPeriod,
 } from "@/types/kma";
 
 export function validateLatLon(lat: number, lon: number) {
@@ -107,7 +109,7 @@ export function findNearestGrid(
 }
 
 /** 가장 최근 발표시각(TM_FC) 계산: 00시 or 12시 */
-function getLatestTmFc(): string {
+export function getLatestTmFc(): string {
   const kst = nowKST();
 
   const y = kst.getUTCFullYear();
@@ -120,13 +122,13 @@ function getLatestTmFc(): string {
 }
 
 /** KST 기준 현재 시각 */
-function nowKST(): Date {
+export function nowKST(): Date {
   const now = new Date();
   return new Date(now.getTime() + 9 * 60 * 60 * 1000);
 }
 
 /** YYYYMMDDHHmm → Date */
-function parseTm(tm: string): Date {
+export function parseTm(tm: string): Date {
   const y = Number(tm.slice(0, 4));
   const m = Number(tm.slice(4, 6)) - 1;
   const d = Number(tm.slice(6, 8));
@@ -134,6 +136,7 @@ function parseTm(tm: string): Date {
   const min = Number(tm.slice(10, 12));
   return new Date(Date.UTC(y, m, d, h, min));
 }
+
 
 export async function fetch3DayForecast(regId: string): Promise<ForecastRow[]> {
   const serviceKey = process.env.KMA_API_KEY;
@@ -370,4 +373,27 @@ export function getUVTime(): string {
 
   // ⚠️ 분은 반드시 00
   return `${yyyy}${mm}${dd}${hh}00`;
+}
+
+
+export function groupByDay(data: ForecastRow[]): DailyForecast[] {
+  const map = new Map<string, DailyForecast>();
+
+  data.forEach((row) => {
+    const y = row.TM_EF.slice(0, 4);
+    const m = row.TM_EF.slice(4, 6);
+    const d = row.TM_EF.slice(6, 8);
+    const hh = Number(row.TM_EF.slice(8, 10));
+
+    const dateKey = `${y}-${m}-${d}`;
+    const period: DayPeriod = hh < 12 ? "AM" : "PM";
+
+    if (!map.has(dateKey)) {
+      map.set(dateKey, { date: dateKey });
+    }
+
+    map.get(dateKey)![period.toLowerCase() as "am" | "pm"] = row;
+  });
+
+  return Array.from(map.values()).slice(0, 8);
 }

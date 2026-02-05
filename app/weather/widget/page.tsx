@@ -2,11 +2,64 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
 import { useRouter } from "next/navigation";
 
-export default function ForcastPage() {
+// function import
+import { fetch3DayForecast, getLatestTmFc, groupByDay } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { ForecastRow } from "@/types/kma";
+
+export async function fetch3DayForecastClient(
+  regId: string,
+): Promise<ForecastRow[]> {
+  const res = await fetch(`/api/forecast/3day?regId=${regId}`);
+
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export default function ForecastPage() {
   const router = useRouter();
+  const [data, setData] = useState<ForecastRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+    // 3일치 날짜 배열
+  const days = [
+    { date: "20260206", label: "6일(금)" },
+    { date: "20260207", label: "7일(토)" },
+    { date: "20260208", label: "8일(일)" },
+  ];
+
+  useEffect(() => {
+    fetch3DayForecastClient("11B10101")
+      .then((rows) => setData(rows))
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
+  }, []);
+
+  if (error) return <p>에러 발생: {error}</p>;
+
+  // 날짜별 오전/오후 기온과 날씨 매핑
+  const dayForecasts = days.map((d) => {
+    const am = data.find((r) => r.TM_EF.startsWith(d.date + "00"));
+    const pm = data.find((r) => r.TM_EF.startsWith(d.date + "12"));
+
+    return {
+      dateLabel: d.label,
+      am: am
+        ? { temp: Number(am.TA), wf: am.WF || "-" }
+        : { temp: null, wf: "-" },
+      pm: pm
+        ? { temp: Number(pm.TA), wf: pm.WF || "-" }
+        : { temp: null, wf: "-" },
+    };
+  });
+
   return (
     <main className="min-h-screen bg-white ">
       <div className="mx-auto w-full max-w-md px-5 pb-10">
@@ -34,7 +87,7 @@ export default function ForcastPage() {
                 className="w-full rounded-full px-5 py-3 pr-12 shadow-sm border text-sm focus:outline-none"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <img src="/icon/search--local.svg" />
+                <img src="/icons/search--local.svg" />
               </span>
             </div>
 
@@ -46,31 +99,19 @@ export default function ForcastPage() {
 
               <div className="overflow-x-auto pb-2">
                 <div className="min-w-[600px] border-collapse text-[10px] text-center">
-                  <div className="grid grid-cols-[60px_repeat(8,1fr)] border-b border-t border-gray-100 items-stretch">
-                    <div className="flex items-center justify-center bg-gray-50 font-medium border-r border-gray-100">
+                  <div className="grid grid-cols-[60px_repeat(8,1fr)] border-b border-t border-gray-100">
+                    <div className="flex items-center justify-center bg-gray-50 font-medium border-r">
                       날짜
-                    </div>
-                    <div className="py-2 bg-blue-50 border-x border-blue-200">
-                      <p className="font-bold">21일(수)</p>
-                      <p className="text-blue-500 text-[9px]">오늘</p>
-                    </div>
-                    <div className="py-2 border-r border-gray-100">
-                      22일(목)
-                      <p className="text-gray-400 text-[9px]">내일</p>
-                    </div>
-                    <div className="py-2 border-r border-gray-100">
-                      23일(금)
-                      <p className="text-gray-400 text-[9px]">모레</p>
-                    </div>
-                    <div className="py-2 border-r border-gray-100 text-blue-500">
-                      24일(토)
-                    </div>
-                    <div className="py-2 border-r border-gray-100 text-red-500">
-                      25일(일)
-                    </div>
-                    <div className="py-2 border-r border-gray-100">
-                      26일(월)
-                    </div>
+                    </div>                         {dayForecasts.map((d, i) => (
+                      <div
+                        key={i}
+                        className={`py-2 border-r border-gray-100 ${
+                          i === 0 ? "bg-blue-50 font-bold" : ""
+                        }`}
+                      >
+                        {d.dateLabel}
+                      </div>
+                    ))}
                     <div className="py-2 border-r border-gray-100">
                       27일(화)
                     </div>
@@ -159,18 +200,21 @@ export default function ForcastPage() {
                     <div className="py-2 bg-gray-50 font-medium border-r border-gray-100">
                       기온
                     </div>
-                    <div className="grid grid-cols-2 bg-blue-50 border-x border-blue-200 px-1">
-                      <span className="text-blue-500">-14°</span>
-                      <span className="text-red-500">-5°</span>
-                    </div>
-                    <div className="grid grid-cols-2 border-r border-gray-100 px-1">
-                      <span className="text-blue-500">-14°</span>
-                      <span className="text-red-500">-5°</span>
-                    </div>
-                    <div className="grid grid-cols-2 border-r border-gray-100 px-1">
-                      <span className="text-blue-500">-11°</span>
-                      <span className="text-red-500">-2°</span>
-                    </div>
+                    
+                    {dayForecasts.map((d, i) => (
+                      <div
+                        key={i}
+                        className="grid grid-cols-2 border-r border-gray-100 px-1"
+                      >
+                        <span className="text-blue-500">
+                          {d.am.temp !== null ? `${d.am.temp}°` : "-"}
+                        </span>
+                        <span className="text-red-500">
+                          {d.pm.temp !== null ? `${d.pm.temp}°` : "-"}
+                        </span>
+                      </div>
+                    ))}
+                    {/* 나머지 하드코딩 */}
                     <div className="grid grid-cols-2 border-r border-gray-100 px-1">
                       <span className="text-blue-500">-10°</span>
                       <span className="text-red-500">-2°</span>
@@ -300,9 +344,9 @@ export default function ForcastPage() {
                         <polyline
                           fill="none"
                           stroke="#3b82f6"
-                          stroke-width="1.5"
+                          strokeWidth="1.5"
                           points="30,30 90,10 150,30 210,50 270,70 330,80 390,80 450,80 510,30 570,10 630,30"
-                          vector-effect="non-scaling-stroke"
+                          vectorEffect="non-scaling-stroke"
                         />
                         <circle cx="210" cy="50" r="3" fill="#3b82f6" />
                       </svg>

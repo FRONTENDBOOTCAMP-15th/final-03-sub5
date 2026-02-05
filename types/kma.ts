@@ -120,6 +120,14 @@ export interface HourlyForecast {
   rainProbability?: number;
 }
 
+export type DayPeriod = "AM" | "PM";
+
+export type DailyForecast = {
+  date: string;        // 2026-02-21
+  am?: ForecastRow;
+  pm?: ForecastRow;
+};
+
 
 export interface ForecastItem {
   baseDate: string;

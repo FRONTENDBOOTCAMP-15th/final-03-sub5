@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import Navi from "../components/common/Navi";
@@ -129,7 +130,6 @@ export default function WeatherPage() {
         const uv = await getUltraViolet(108);
         setUV(uv);
 
-
         //TODO 러닝 최적도 분석 함수
         const obs: KmaObservation = {
           CA_TOT: 8,
@@ -155,8 +155,21 @@ export default function WeatherPage() {
       {/*<!-- 날씨 페이지-->*/}
 
       <div className="min-w-[375px] items-stretch space-y-6 pl-4 pr-4 pb-0 pt-16">
-        <div className="flex-1 flex flex-col">
-          <h1 className="text-xl font-bold">실시간 날씨</h1>
+        <div className="flex-1 flex flex-col space-y-2">
+          {/* 제목 + 버튼 */}
+          <div className="flex items-center">
+            <h1 className="text-xl font-bold">실시간 날씨</h1>
+
+            <Link
+              href="/weather/widget"
+              className="ml-auto inline-flex items-center rounded-md
+                   bg-blue-600 px-3 py-1.5 text-sm font-medium
+                   text-white hover:bg-blue-700"
+            >
+              예보 보기
+            </Link>
+          </div>
+
           <p className="text-sm text-gray-500">
             현재 위치의 날씨와 러닝 최적도를 확인하세요
           </p>
