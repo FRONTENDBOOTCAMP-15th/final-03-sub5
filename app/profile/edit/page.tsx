@@ -1,14 +1,25 @@
 "use client";
 
+import Navi from "@/app/components/common/Navi";
 import ProfileButton from "@/app/profile/components/ProfileButton";
 import ProfileFooter from "@/app/profile/components/ProfileFooter";
 import ProfileHeader from "@/app/profile/components/ProfileHeader";
 import Image from "next/image";
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 
 export default function ProfileEdit() {
   const [openPhotoSetter, setOpenPhotoSetter] = useState(false);
   const [openGalleryModal, setOpenGalleryModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+    }
+  };
 
   return (
     <>
@@ -19,7 +30,7 @@ export default function ProfileEdit() {
         {/* 프로필 사진 + 카메라 아이콘 */}
         <div className="flex items-center justify-center relative w-[70px] h-[70px] mx-auto">
           <Image
-            src="/icons/profile-main.svg"
+            src={selectedImage || "/icons/profile-main.svg"}
             alt="프로필 사진"
             fill
             className="object-cover"
@@ -89,7 +100,7 @@ export default function ProfileEdit() {
         </div>
       </main>
 
-      <ProfileFooter />
+      <Navi />
 
       {/* ●●●●● ① 프로필 사진 설정 modal 전체 레이어 */}
       {openPhotoSetter && (
@@ -155,6 +166,15 @@ export default function ProfileEdit() {
           id="gallery-modal"
           className="fixed inset-0 z-50 flex items-center justify-center"
         >
+          {/* --------------- 실제 사진첩 연결 --------------- */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+
           {/* ★ dim 추가 */}
           <div className="absolute inset-0 bg-black/50 z-0"></div>
 
@@ -166,7 +186,7 @@ export default function ProfileEdit() {
               </h2>
               <div className="relative w-full h-[160px] px-4 py-2">
                 <Image
-                  src="/icons/photo-gallery.svg"
+                  src={selectedImage || "/icons/photo-gallery.svg"}
                   alt="프로필 선택"
                   fill
                   className="object-contain"
@@ -186,6 +206,14 @@ export default function ProfileEdit() {
                 <button
                   type="button"
                   className="w-1/2 border border-[#003458] rounded-[5px] py-3 bg-[#003458] text-white cursor-pointer"
+                  onClick={() => {
+                    if (selectedImage) {
+                      setOpenPhotoSetter(false);
+                      setOpenGalleryModal(false);
+                    } else {
+                      fileInputRef.current?.click();
+                    }
+                  }}
                 >
                   선택
                 </button>
