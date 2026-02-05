@@ -216,13 +216,13 @@ export default function WeatherPage() {
               <div className="text-left">
                 {weather?.HM && (
                   <>
-                    <div className="font-semibold">습도</div>
-                    <div className="text-gray-500">{weather?.HM}%</div>
+                    <div className="font-semibold text-[0.65rem]">습도</div>
+                    <div className="text-gray-500 text-xs">{weather?.HM}%</div>
                   </>
                 )}
               </div>
             </div>
-            <div className="bg-white rounded-xl flex items-center p-3 text-xs shadow gap-3 min-w-[70px]">
+            <div className="bg-white rounded-xl flex items-center p-3 shadow gap-3 min-w-[70px]">
               <div className="text-lg bg-[#DBFCE7] rounded-md">
                 <Image
                   src="/icons/wind-line.svg"
@@ -234,14 +234,16 @@ export default function WeatherPage() {
               <div className="text-left">
                 {weather?.WS && (
                   <>
-                    <div className="font-semibold">풍속</div>
-                    <div className="text-gray-500">{weather?.WS} m/s</div>
+                    <div className="font-semibold text-[0.65rem]">풍속</div>
+                    <div className="text-gray-500 text-xs">
+                      {weather?.WS} m/s
+                    </div>
                   </>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl flex items-center p-3 text-xs shadow gap-3 min-w-[70px]">
+            <div className="bg-white rounded-xl flex items-center p-3 text-[0.65rem] shadow gap-3 min-w-[70px]">
               <div className="text-lg bg-[#F3E8FF] rounded-md">
                 <Image
                   src="/icons/view-fill.svg"
@@ -254,7 +256,7 @@ export default function WeatherPage() {
                 {weather?.VS && (
                   <>
                     <div className="text-[0.65rem] font-semibold">가시거리</div>
-                    <div className="text-gray-500 ">{weather?.VS} m</div>
+                    <div className="text-gray-500 text-xs">{weather?.VS} m</div>
                   </>
                 )}
               </div>
@@ -272,8 +274,8 @@ export default function WeatherPage() {
               <div className="text-left">
                 {uv && (
                   <>
-                    <div className="font-semibold">자외선</div>
-                    <div className="text-gray-500">지수 {uv}</div>
+                    <div className="font-semibold text-[0.65rem]">자외선</div>
+                    <div className="text-gray-500 text-xs">{uv}</div>
                   </>
                 )}
               </div>
