@@ -99,11 +99,12 @@ export default function RecordPage() {
       console.error("삭제에러", error);
     }
   };
-  // 오늘 달린 기록 필터
+  // 오늘 기록 필터
   const todayRecord = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
     return data.find((record) => record.extra?.date === today);
   }, [data]);
+
   // 차트 영역 1.
 
   return (
@@ -208,56 +209,60 @@ export default function RecordPage() {
         <h2 className="text-lg font-semibold mt-4">최근 기록</h2>
         <p className="text-gray-500 text-sm pb-3">최근 활동 내역을 확인 하세요</p>
         {/* 기록 리스트 */}
-        <div className="space-y-3 ">
-          {/* 기록 아이템 *************************************************************** */}
-          {data.slice(0, 5).map((record) => (
-            <div key={record._id} className="bg-white rounded-xl border border-gray-200 p-4">
-              {/* 날짜 */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">{record.extra.date}</span>
-                <Link href={`/records/${record._id}/edit`} className="text-xs text-blue-500">
-                  수정
-                </Link>
-                <button className="text-xs text-red-500" onClick={() => handleDelete(record._id)}>
-                  삭제
-                </button>
-                <Link href={`/records/${record._id}/`} className="text-xs text-primary">
-                  상세
-                </Link>
-              </div>
-
-              {/* 데이터 한 줄 */}
-              <div className="flex items-center gap-4 text-sm">
-                <div>
-                  <span className="font-bold text-primary text-lg">{record.extra.distance}</span>
-                  <span className="text-gray-400 text-xs ml-1">km</span>
+        {data.length > 0 ? (
+          <div className="space-y-3 ">
+            {/* 기록 아이템 *************************************************************** */}
+            {data.slice(0, 5).map((record) => (
+              <div key={record._id} className="bg-white rounded-xl border border-gray-200 p-4">
+                {/* 날짜 */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-gray-700">{record.extra.date}</span>
+                  <Link href={`/records/${record._id}/edit`} className="text-xs text-blue-500">
+                    수정
+                  </Link>
+                  <button className="text-xs text-red-500" onClick={() => handleDelete(record._id)}>
+                    삭제
+                  </button>
+                  <Link href={`/records/${record._id}/`} className="text-xs text-primary">
+                    상세
+                  </Link>
                 </div>
 
-                <div className="h-4 w-px bg-gray-200" />
+                {/* 데이터 한 줄 */}
+                <div className="flex items-center gap-4 text-sm">
+                  <div>
+                    <span className="font-bold text-primary text-lg">{record.extra.distance}</span>
+                    <span className="text-gray-400 text-xs ml-1">km</span>
+                  </div>
 
-                <div>
-                  <span className="font-bold text-gray-700">{record.extra.duration}</span>
-                  <span className="text-gray-400 text-xs ml-1">Time</span>
+                  <div className="h-4 w-px bg-gray-200" />
+
+                  <div>
+                    <span className="font-bold text-gray-700">{record.extra.duration}</span>
+                    <span className="text-gray-400 text-xs ml-1">Time</span>
+                  </div>
+
+                  <div className="h-4 w-px bg-gray-200" />
+
+                  <div>
+                    <span className="font-bold text-gray-700">{record.extra.pace}</span>
+                    <span className="text-gray-400 text-xs ml-1">/km</span>
+                  </div>
                 </div>
 
-                <div className="h-4 w-px bg-gray-200" />
-
-                <div>
-                  <span className="font-bold text-gray-700">{record.extra.pace}</span>
-                  <span className="text-gray-400 text-xs ml-1">/km</span>
+                {/* 장소 */}
+                <div className="flex items-center gap-1 text-xs text-gray-500 mt-2">
+                  <span>📍</span>
+                  <span>{record.extra.location || "장소 없음"}</span>
                 </div>
               </div>
+            ))}
 
-              {/* 장소 */}
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-2">
-                <span>📍</span>
-                <span>{record.extra.location || "장소 없음"}</span>
-              </div>
-            </div>
-          ))}
-
-          {/* 기록 아이템 **************************************************************** */}
-        </div>
+            {/* 기록 아이템 **************************************************************** */}
+          </div>
+        ) : (
+          <div>기록 없음</div>
+        )}
       </div>
       {/* 평균 페이스 통계 */}
       <div ref={statsRef} className="px-4 py-3">
