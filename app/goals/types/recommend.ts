@@ -6,6 +6,7 @@ export const goalData = [
     subtitle: "처음 시작하는 단계",
     description: "러닝에 익숙해지는 첫 걸음",
     level: "초급",
+    status: "진행중",
   },
   {
     id: 2,
@@ -13,6 +14,7 @@ export const goalData = [
     subtitle: "러닝의 기본을 다지는 단계 ",
     description: "편안한 속도로 꾸준히 완주하는 것이 목표 ",
     level: "초급",
+    status: "완료",
   },
   {
     id: 3,
@@ -20,6 +22,7 @@ export const goalData = [
     subtitle: "하프 마라톤 도전 ",
     description: "10KM 에 익숙해지면 도전하는 중급 러너의 첫 관문",
     level: "초급",
+    status: "미완료",
   },
   {
     id: 4,

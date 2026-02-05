@@ -1,10 +1,34 @@
-import { LevelDummy } from "../config/levelConfig";
+"use client";
+import useStatsStore from "@/zustand/statsStore";
+// import { LevelcalculateLevel, getUserStatusummy } from "../config/levelConfig";
+import { calculateLevel, getUserStatus } from "../utils/LevelCalculator";
 import { LevelInfo } from "../types";
+import { useEffect } from "react";
 export default function RunningCard({
   userLevel,
 }: {
   userLevel: LevelInfo | undefined;
 }) {
+  const { monthlyStats, setMonthlyStats } = useStatsStore();
+  console.log(monthlyStats);
+
+  useEffect(() => {
+    if (userLevel) {
+      setMonthlyStats({
+        totalDistance: userLevel.totalDistance,
+        averagePace: String(userLevel.pace),
+        monthlyRuns: userLevel.monthlyRuns,
+      });
+    }
+  }, [userLevel, setMonthlyStats]);
+  const level = calculateLevel({
+    pace: userLevel?.pace ?? 0,
+    totalDistance: userLevel?.totalDistance ?? 0,
+  } as LevelInfo);
+
+  const status = getUserStatus(userLevel?.monthlyRuns ?? 0);
+
+  console.log("level:", level, "status:", status);
   return (
     <>
       {/* 메인 중간 : 분석결과 카드 */}

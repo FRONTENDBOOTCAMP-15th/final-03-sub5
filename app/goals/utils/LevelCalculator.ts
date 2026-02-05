@@ -1,4 +1,4 @@
-import { LevelInfo } from "../types/index";
+import { LevelInfo, leveltype, UserStatus } from "../types/index";
 
 export function calculateLevel({ pace, totalDistance }: LevelInfo) {
   console.log("totalDistance", totalDistance);
@@ -11,4 +11,10 @@ export function calculateLevel({ pace, totalDistance }: LevelInfo) {
   } else {
     return "고급";
   }
+}
+export function getUserStatus(monthlyRuns: number): UserStatus {
+  if (monthlyRuns < 3) {
+    return "신규";
+  }
+  return "꾸준";
 }

@@ -1,14 +1,31 @@
-import { leveltype } from "@/app/goals/types";
+"use client";
+import { leveltype, RecommendGoal } from "@/app/goals/types";
 import { goalData } from "@/app/goals/types/recommend";
+import { createGoal } from "@/app/lib/goalsAPI";
+import useUserStore from "@/zustand/user";
+
+import { useRouter } from "next/navigation";
 
 export default function RecCard({ level }: { level: leveltype }) {
   const filterGoals = goalData.filter((data) => data.level === level);
+  const user = useUserStore((state) => state.user);
+  const router = useRouter();
+  const AddGoal = async (goal) => {
+    if (!user) {
+      alert("로그인이 필요합니다");
+      return;
+    }
+    const result = await createGoal(goal, user.token!.accessToken);
+    console.log("응답:", result);
+    router.push("/goals/my");
+  };
 
   return (
     <>
       {filterGoals.map((goal) => (
         <article
           key={goal.id}
+          onClick={() => AddGoal(goal)}
           className="border border-notselectbtn-border rounded-xl max-w-md min-w-93.75 gap-4 p-4 mb-3 cursor-pointer"
         >
           <h2 className="font-bold text-lg mb-2">{goal.title}</h2>
