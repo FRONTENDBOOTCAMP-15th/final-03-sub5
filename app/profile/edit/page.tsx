@@ -20,6 +20,11 @@ export default function ProfileEdit() {
     }
   };
 
+  const handleRemovePhoto = () => {
+    setSelectedImage(null);
+    setOpenPhotoSetter(false);
+  };
+
   return (
     <>
       <ProfileHeader />
@@ -139,7 +144,10 @@ export default function ProfileEdit() {
                 />
                 <span>갤러리에서 선택</span>
               </button>
-              <button className="modal-photo-remove flex items-center gap-3 border-b border-gray-200 px-7 py-3 w-full cursor-pointer">
+              <button
+                className="modal-photo-remove flex items-center gap-3 border-b border-gray-200 px-7 py-3 w-full cursor-pointer"
+                onClick={handleRemovePhoto}
+              >
                 <Image
                   src="/icons/edit-remove.svg"
                   alt="현재 사진 삭제"
