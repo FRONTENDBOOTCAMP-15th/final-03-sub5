@@ -8,7 +8,7 @@ import { calculateMonthlyStats, calculateRecentPace, calculateWeeklyStats } from
 import { RunningRecord } from "@/app/lib/types";
 import useStatsStore from "@/zustand/statsStore";
 import useUserStore from "@/zustand/user";
-import { toBeChecked } from "@testing-library/jest-dom/matchers";
+//import { toBeChecked } from "@testing-library/jest-dom/matchers";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 

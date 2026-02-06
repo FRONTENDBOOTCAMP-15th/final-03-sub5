@@ -137,7 +137,6 @@ export function parseTm(tm: string): Date {
   return new Date(Date.UTC(y, m, d, h, min));
 }
 
-
 export async function fetch3DayForecast(regId: string): Promise<ForecastRow[]> {
   const serviceKey = process.env.KMA_API_KEY;
   const tmfc = getLatestTmFc();
@@ -252,27 +251,6 @@ export function parseKmaDate(fcstDate: string, fcstTime: string): Date {
   return new Date(year, month, day, hour, minute);
 }
 
-export function extract3HourTemps(
-  items: ForecastItem[],
-  now: Date = new Date(),
-): TempForecast[] {
-  const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
-  return items
-    .filter((item) => item.category === "TMP")
-    .map((item) => ({
-      datetime: parseKmaDate(item.fcstDate, item.fcstTime),
-      temperature: Number(item.fcstValue),
-    }))
-    .filter(
-      (f) =>
-        f.datetime >= now &&
-        f.datetime <= end &&
-        f.datetime.getHours() % 3 === 0,
-    )
-    .sort((a, b) => a.datetime.getTime() - b.datetime.getTime());
-}
-
 export function findLatLon(
   dong: string,
   data: LocationRow[],
@@ -281,14 +259,13 @@ export function findLatLon(
   return row ? { lat: row.lat, lon: row.lon } : null;
 }
 
-
 export function getCurrentTime() {
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
   const dd = String(now.getDate()).padStart(2, "0");
   const hh = String(now.getHours()).padStart(2, "0");
-  
+
   return `${yyyy}${mm}${dd}${hh}00`;
 }
 
@@ -345,7 +322,6 @@ export function outdoorGrade(score: number): "좋음" | "보통" | "나쁨" {
   return "나쁨";
 }
 
-
 export function getCurrentTimeKoreanFormat(): string {
   const now = new Date();
 
@@ -362,7 +338,6 @@ export function getCurrentTimeKoreanFormat(): string {
   return `${month}월 ${day}일 ${period} ${hours}:${minutes}`;
 }
 
-
 export function getUVTime(): string {
   const now = new Date();
 
@@ -374,7 +349,6 @@ export function getUVTime(): string {
   // ⚠️ 분은 반드시 00
   return `${yyyy}${mm}${dd}${hh}00`;
 }
-
 
 export function groupByDay(data: ForecastRow[]): DailyForecast[] {
   const map = new Map<string, DailyForecast>();
@@ -396,4 +370,25 @@ export function groupByDay(data: ForecastRow[]): DailyForecast[] {
   });
 
   return Array.from(map.values()).slice(0, 8);
+}
+
+export function extract3HourTemps(
+  items: ForecastItem[],
+  now: Date = new Date(),
+): TempForecast[] {
+  const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+  return items
+    .filter((item) => item.category === "TMP")
+    .map((item) => ({
+      datetime: parseKmaDate(item.fcstDate, item.fcstTime),
+      temperature: Number(item.fcstValue),
+    }))
+    .filter(
+      (f) =>
+        f.datetime >= now &&
+        f.datetime <= end &&
+        f.datetime.getHours() % 3 === 0,
+    )
+    .sort((a, b) => a.datetime.getTime() - b.datetime.getTime());
 }
