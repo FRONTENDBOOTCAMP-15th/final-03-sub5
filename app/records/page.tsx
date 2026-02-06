@@ -3,15 +3,17 @@
 import Footer from "@/app/components/common/Footer";
 import Header from "@/app/components/common/Header";
 import Navi from "@/app/components/common/Navi";
+import { getMonthlyDistanceChartData, getWeeklyChartData } from "@/app/lib/chart";
 import { deleteRecord, getMyRecords } from "@/app/lib/recordsAPI";
 import { calculateMonthlyStats, calculateRecentPace, calculateWeeklyStats } from "@/app/lib/stats";
 import { RunningRecord } from "@/app/lib/types";
 import useStatsStore from "@/zustand/statsStore";
 import useUserStore from "@/zustand/user";
-import { toBeChecked } from "@testing-library/jest-dom/matchers";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
+// 메인페이지
 export default function RecordPage() {
   const [data, setData] = useState<RunningRecord[]>([]);
 
@@ -99,6 +101,27 @@ export default function RecordPage() {
       console.error("삭제에러", error);
     }
   };
+  // 오늘 기록 필터
+  const todayRecord = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+    return data.find((record) => record.extra?.date === today);
+  }, [data]);
+
+  // 주간 차트 영역
+
+  const sortedRecentRecords = useMemo(() => {
+    return [...data]
+      .filter((r) => r.extra?.date)
+      .sort((a, b) => {
+        return new Date(b.extra.date).getTime() - new Date(a.extra.date).getTime();
+      })
+      .slice(0, 5);
+  }, [data]);
+
+  const weeklyChartData = useMemo(() => getWeeklyChartData(data), [data]);
+
+  // 월간 차트
+  const monthlyChartData = useMemo(() => getMonthlyDistanceChartData(data), [data]);
   return (
     <>
       <Header />
@@ -132,49 +155,65 @@ export default function RecordPage() {
       </div>
       {/* 데이터 작업 버튼 탭 */}
       <div className="flex gap-3 justify-center py-4">
-        <button className="bg-primary text-sm text-white px-5 py-2 rounded-lg">필터</button>
+        <button className="bg-primary text-sm text-white px-5 py-2 rounded-lg">전체 기록보기</button>
         <button className="text-sm border-gray-200 border px-5 py-2 rounded-lg">내보내기</button>
         <Link href="/records/new" className="text-sm border-gray-200 border px-5 py-2 rounded-lg">
           기록추가
         </Link>
       </div>
       {/* 러닝 요약 탭 */}
-      <div ref={dailyRef} className="px-4 scroll-mt-34">
-        <h2 className=" font-semibold text-xl my-3">오늘의 러닝 요약</h2>
-        {data.length > 0 ? (
+      {todayRecord && todayRecord.extra ? (
+        <div ref={dailyRef} className="px-4 scroll-mt-34">
+          <h2 className=" font-semibold text-xl my-3">오늘의 러닝 요약</h2>
+          {}
           <div className="flex gap-3 text-left overflow-x-auto scrollbar-hide">
             <div className="flex-col border border-gray-200 rounded-lg px-6 py-3 whitespace-nowrap">
               <div className="text-sm text-gray-400 mb-1">거리</div>
               <div>
-                <span className="text-lg font-bold">{data[0].extra.distance}km</span>
+                <span className="text-lg font-bold">{todayRecord.extra.distance}km</span>
               </div>
             </div>
             <div className="flex-col border border-gray-200 rounded-lg px-6 py-3 whitespace-nowrap">
               <div className="text-sm text-gray-400 mb-1">시간</div>
               <div>
-                <span className="text-lg font-bold">{formatDuration(data[0].extra.duration)}</span>
+                <span className="text-lg font-bold">{todayRecord.extra.duration}</span>
               </div>
             </div>
             <div className="flex-col border border-gray-200 rounded-lg px-6 py-3 whitespace-nowrap">
               <div className="text-sm text-gray-400 mb-1">페이스</div>
               <div>
-                <span className="text-lg font-bold">{data[0].extra.pace} /km</span>
+                <span className="text-lg font-bold">{todayRecord.extra.pace} /km</span>
               </div>
             </div>
           </div>
-        ) : (
-          <div className="text-center py-8 text-gray-400">기록이 없습니다</div>
-        )}
-      </div>
-      {/* 주간 러닝 거리 차트 */}
+          {/* <div className="text-center py-8 text-gray-400">기록이 없습니다</div> */}
+        </div>
+      ) : (
+        <div className="border border-gray-200 rounded-lg p-8 text-center">
+          <div className="text-gray-400 mb-2">📝</div>
+          <p className="text-gray-500 mb-3">오늘 기록이 없습니다</p>
+          <Link href="/records/new" className="inline-block text-sm bg-primary text-white px-5 py-2 rounded-lg">
+            기록 추가하기
+          </Link>
+        </div>
+      )}
+      ;{/* 주간 러닝 거리 차트 */}
       <div ref={weeklyRecordRef} className="bg-white scroll-mt-34 rounded-lg border border-gray-200 mx-4 my-3 p-5">
         <h2 className="text-lg font-semibold mb-2">주간 러닝 거리</h2>
         <p className="text-sm text-gray-500 mb-4">
           {weeklyStats?.totalDistance} &#40;km&#41; {weeklyStats?.weeklyRuns} 회
         </p>
         {/* 차트 */}
-        <div className="h-48 bg-gray-100 rounded flex items-center justify-center">
-          <p className="text-gray-400">[차트 영역]</p>
+        <div className="h-48 rounded flex items-center justify-center">
+          <ResponsiveContainer width="100%" height={150}>
+            <BarChart data={weeklyChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis width={20} />
+              <Tooltip />
+              <Bar dataKey="distance" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
       {/* 월간 러닝 거리 */}
@@ -184,8 +223,16 @@ export default function RecordPage() {
           {monthlyStats?.totalDistance} &#40;km&#41; {monthlyStats?.monthlyRuns} 회
         </p>
         {/* 차트 영역 - 나중에 Recharts 들어갈 자리 */}
-        <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center border border-dashed border-gray-300">
-          <p className="text-gray-400 text-sm">[월간 차트]</p>
+        <div className="h-48 rounded flex items-center justify-center">
+          <ResponsiveContainer width="100%" height={170}>
+            <BarChart data={monthlyChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" tick={{ fontSize: 10 }} />
+              <YAxis width={20} />
+              <Tooltip />
+              <Bar dataKey="distance" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
       {/* 최근 기록 */}
@@ -193,56 +240,60 @@ export default function RecordPage() {
         <h2 className="text-lg font-semibold mt-4">최근 기록</h2>
         <p className="text-gray-500 text-sm pb-3">최근 활동 내역을 확인 하세요</p>
         {/* 기록 리스트 */}
-        <div className="space-y-3 ">
-          {/* 기록 아이템 *************************************************************** */}
-          {data.slice(0, 5).map((record) => (
-            <div key={record._id} className="bg-white rounded-xl border border-gray-200 p-4">
-              {/* 날짜 */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">{record.extra.date}</span>
-                <Link href={`/records/${record._id}/edit`} className="text-xs text-blue-500">
-                  수정
-                </Link>
-                <button className="text-xs text-red-500" onClick={() => handleDelete(record._id)}>
-                  삭제
-                </button>
-                <Link href={`/records/${record._id}/`} className="text-xs text-primary">
-                  상세
-                </Link>
-              </div>
-
-              {/* 데이터 한 줄 */}
-              <div className="flex items-center gap-4 text-sm">
-                <div>
-                  <span className="font-bold text-primary text-lg">{record.extra.distance}</span>
-                  <span className="text-gray-400 text-xs ml-1">km</span>
+        {data.length > 0 ? (
+          <div className="space-y-3 ">
+            {/* 기록 아이템 *************************************************************** */}
+            {sortedRecentRecords.map((record) => (
+              <div key={record._id} className="bg-white rounded-xl border border-gray-200 p-4">
+                {/* 날짜 */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-gray-700">{record.extra.date}</span>
+                  <Link href={`/records/${record._id}/edit`} className="text-xs text-blue-500">
+                    수정
+                  </Link>
+                  <button className="text-xs text-red-500" onClick={() => handleDelete(record._id)}>
+                    삭제
+                  </button>
+                  <Link href={`/records/${record._id}/`} className="text-xs text-primary">
+                    상세
+                  </Link>
                 </div>
 
-                <div className="h-4 w-px bg-gray-200" />
+                {/* 데이터 한 줄 */}
+                <div className="flex items-center gap-4 text-sm">
+                  <div>
+                    <span className="font-bold text-primary text-lg">{record.extra.distance}</span>
+                    <span className="text-gray-400 text-xs ml-1">km</span>
+                  </div>
 
-                <div>
-                  <span className="font-bold text-gray-700">{record.extra.duration}</span>
-                  <span className="text-gray-400 text-xs ml-1">Time</span>
+                  <div className="h-4 w-px bg-gray-200" />
+
+                  <div>
+                    <span className="font-bold text-gray-700">{record.extra.duration}</span>
+                    <span className="text-gray-400 text-xs ml-1">Time</span>
+                  </div>
+
+                  <div className="h-4 w-px bg-gray-200" />
+
+                  <div>
+                    <span className="font-bold text-gray-700">{record.extra.pace}</span>
+                    <span className="text-gray-400 text-xs ml-1">/km</span>
+                  </div>
                 </div>
 
-                <div className="h-4 w-px bg-gray-200" />
-
-                <div>
-                  <span className="font-bold text-gray-700">{record.extra.pace}</span>
-                  <span className="text-gray-400 text-xs ml-1">/km</span>
+                {/* 장소 */}
+                <div className="flex items-center gap-1 text-xs text-gray-500 mt-2">
+                  <span>📍</span>
+                  <span>{record.extra.location || "장소 없음"}</span>
                 </div>
               </div>
+            ))}
 
-              {/* 장소 */}
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-2">
-                <span>📍</span>
-                <span>{record.extra.location || "장소 없음"}</span>
-              </div>
-            </div>
-          ))}
-
-          {/* 기록 아이템 **************************************************************** */}
-        </div>
+            {/* 기록 아이템 **************************************************************** */}
+          </div>
+        ) : (
+          <div>기록 없음</div>
+        )}
       </div>
       {/* 평균 페이스 통계 */}
       <div ref={statsRef} className="px-4 py-3">

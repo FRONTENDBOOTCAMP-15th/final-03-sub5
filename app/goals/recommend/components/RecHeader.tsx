@@ -1,10 +1,13 @@
+import useGoalsStore from "@/zustand/goals";
 import Link from "next/link";
 
 export default function RecHeader() {
+  const level = useGoalsStore((state) => state.level);
+
   return (
     <>
-      <div className="flex flex-row items-center ">
-        <Link href="/goals">
+      <div className="relative flex items-center w-full h-10">
+        <Link href="/goals" className="absolute left-0">
           <svg
             width="24"
             height="24"
@@ -30,8 +33,11 @@ export default function RecHeader() {
             </g>
           </svg>
         </Link>
-        {/* ===== 초급 카드들 ===== */}
-        <section className="font-bold inline-block text-2xl">초급</section>
+        {/* 초급카드들 */}
+
+        <section className="absolute left-1/2 -translate-x-1/2 font-bold text-2xl whitespace-nowrap">
+          {level}
+        </section>
       </div>
     </>
   );
