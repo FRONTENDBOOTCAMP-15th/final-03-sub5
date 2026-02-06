@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+// 3시간 단위 예보
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
   const base_time = searchParams.get("base_time") || "0500";
 
   const url = new URL(
-    "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
+    "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst",
   );
 
   const params = {
@@ -28,7 +29,10 @@ export async function GET(request: Request) {
   try {
     const res = await fetch(url.toString());
     if (!res.ok) {
-      return NextResponse.json({ error: `HTTP Error: ${res.status}` }, { status: res.status });
+      return NextResponse.json(
+        { error: `HTTP Error: ${res.status}` },
+        { status: res.status },
+      );
     }
 
     const data = await res.json();
