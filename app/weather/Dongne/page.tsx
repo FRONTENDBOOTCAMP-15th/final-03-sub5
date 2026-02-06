@@ -3,10 +3,7 @@
 import { extract3HourTemps, getLatestTmFc, groupByDay } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-type TempItem = {
-  datetime: Date;
-  temperature: number;
-};
+import { TempItem } from "@/types/kma";
 
 export default function Fetch3hTemp() {
   const [temps, setTemps] = useState<TempItem[]>([]);
