@@ -1,11 +1,28 @@
+"use client";
 import Footer from "@/app/components/common/Footer";
 import Header from "@/app/components/common/Header";
 import Navi from "@/app/components/common/Navi";
 import GoalsActions from "@/app/goals/components/GoalsActions";
 import LevelHeader from "@/app/goals/components/LevelHeader";
 import RunningCard from "@/app/goals/components/RunningCard";
+import { LevelDummy } from "@/app/goals/config/levelConfig";
+import useGoalsStore from "@/zustand/goals";
+import { useEffect } from "react";
 
 export default function GoalsPage() {
+  const currentUserId = 2;
+
+  const leveling = LevelDummy.find((item) => {
+    if (item.userId === currentUserId) {
+      return true;
+    }
+  });
+  const setUserLevel = useGoalsStore((state) => state.setUserLevel);
+  useEffect(() => {
+    if (leveling) {
+      setUserLevel(leveling);
+    }
+  }, [leveling, setUserLevel]);
   return (
     <>
       <Header />
