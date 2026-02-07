@@ -18,31 +18,6 @@ export function validateLatLon(lat: number, lon: number) {
   }
 }
 
-function fastDistance(a: LocationCoords, b: LocationCoords): number {
-  const latRad = ((a.lat + b.lat) * 0.5 * Math.PI) / 180;
-  const x = (b.lon - a.lon) * Math.cos(latRad);
-  const y = b.lat - a.lat;
-  return x * x + y * y;
-}
-
-export function findNearestStationFast(
-  pos: LocationCoords,
-  stations: Station[],
-): Station {
-  let nearest = stations[0];
-  let minDist = Infinity;
-
-  for (const s of stations) {
-    const d = fastDistance(pos, { lat: s.lat, lon: s.lon });
-    if (d < minDist) {
-      minDist = d;
-      nearest = s;
-    }
-  }
-
-  return nearest;
-}
-
 export function parseCSV(csvText: string): LocationRow[] {
   const lines = csvText.trim().split("\n");
   const rows: LocationRow[] = [];
@@ -420,23 +395,20 @@ export function extractHour3(
     .sort((a, b) => a.datetime.getTime() - b.datetime.getTime());
 }
 
-export function skyToEmoji(
-  sky?: number,
-  datetime?: Date,
-): string {
+export function skyToEmoji(sky?: number, datetime?: Date): string {
   const hour = datetime?.getHours();
   const isNight = hour !== undefined && (hour >= 18 || hour < 6);
 
   if (isNight) {
     switch (sky) {
       case 1:
-        return "🌙";   // 맑은 밤
+        return "🌙"; // 맑은 밤
       case 2:
         return "🌙☁️"; // 구름조금 밤
       case 3:
         return "☁️🌙"; // 구름많음 밤
       case 4:
-        return "☁️";   // 흐린 밤
+        return "☁️"; // 흐린 밤
       default:
         return "🌙";
     }
@@ -457,7 +429,6 @@ export function skyToEmoji(
   }
 }
 
-
 export function formatDate(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -469,4 +440,42 @@ export function formatLabel(date: Date) {
   const day = date.getDate();
   const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
   return `${day}일(${weekday})`;
+}
+
+const DEG2RAD = Math.PI / 180;
+
+function fastDistance(a: LocationCoords, b: LocationCoords): number {
+  // 평균 위도를 라디안으로 변환
+  const latAvgRad = (a.lat + b.lat) * 0.5 * DEG2RAD;
+
+  // degree 차이를 radian으로 변환
+  const dLon = (b.lon - a.lon) * DEG2RAD;
+  const dLat = (b.lat - a.lat) * DEG2RAD;
+
+  // equirectangular approximation
+  const x = dLon * Math.cos(latAvgRad);
+  const y = dLat;
+
+  const dist2 = x * x + y * y;
+
+  return dist2;
+}
+
+export function findNearestStationFast(
+  pos: LocationCoords,
+  stations: Station[],
+): Station {
+  let nearest = stations[0];
+  let minDist = Infinity;
+
+  for (const s of stations) {
+    const d = fastDistance(pos, { lat: s.lat, lon: s.lon });
+   
+    if (d < minDist) {
+      minDist = d;
+      nearest = s;
+    }
+  }
+
+  return nearest;
 }

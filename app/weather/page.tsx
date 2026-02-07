@@ -4,6 +4,8 @@ import Image from "next/image";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import Navi from "../components/common/Navi";
+import fs from "fs";
+import path from "path";
 
 import { useEffect, useState } from "react";
 
@@ -67,13 +69,15 @@ export async function getLegalDongName(
     .join(" ");
 }
 
-async function getWeatherData(stn: number): Promise<KmaObservation | null> {
+async function getWeatherData(
+  coords: LocationCoords,
+): Promise<KmaObservation | null> {
   try {
     const tm = getCurrentTime();
-
-    const res = await fetch(`/api/weather?stn=${stn}&tm=${tm}`);
+    const res = await fetch(
+      `/api/weather?stn=&lat=${coords.lat}&lon=${coords.lon}&tm=${tm}`,
+    );
     if (!res.ok) return null;
-
     return (await res.json()) as KmaObservation;
   } catch (e) {
     console.error(e);
@@ -110,6 +114,7 @@ export default function WeatherPage() {
       try {
         const coords = await getCoordinates();
         setPos(coords);
+        //console.log(coords.lat, coords.lon);
 
         const dong = await getLegalDongName(
           coords,
@@ -118,7 +123,7 @@ export default function WeatherPage() {
         setDongName(dong);
         setDateTime(getCurrentTimeKoreanFormat());
 
-        const w = await getWeatherData(108);
+        const w = await getWeatherData(coords);
         setWeather(w);
         //TODO 날씨 아이콘 구현
         const icon = getWeatherIcon({
@@ -128,7 +133,6 @@ export default function WeatherPage() {
         //
         const uv = await getUltraViolet(108);
         setUV(uv);
-
 
         //TODO 러닝 최적도 분석 함수
         const obs: KmaObservation = {
