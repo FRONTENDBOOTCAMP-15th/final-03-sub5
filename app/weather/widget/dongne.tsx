@@ -1,19 +1,20 @@
 "use client";
 
-import { extract3HourTemps } from "@/lib/utils";
+import { extractHour3, getCurrentTime, skyToEmoji } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-import { TempItem } from "@/types/kma";
+import { Hours3Forecast } from "@/types/kma";
 
 export default function Fetch3hTemp() {
-  const [temps, setTemps] = useState<TempItem[]>([]);
+  const [hours3, setTemps] = useState<Hours3Forecast[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchWeather() {
       try {
+        const today = getCurrentTime().slice(0, 8);
         const res = await fetch(
-          `/api/forecast/hours?nx=63&ny=124&base_date=20260206&base_time=0500`,
+          `/api/forecast/hours?nx=63&ny=124&base_date=${today}&base_time=0500`,
         );
         const data = await res.json();
 
@@ -24,7 +25,7 @@ export default function Fetch3hTemp() {
 
         const items = data.response.body.items.item;
         const now = new Date();
-        const temps = extract3HourTemps(items, now);
+        const temps = extractHour3(items, now);
         setTemps(temps);
       } catch (err: any) {
         setError(err.message);
@@ -43,7 +44,7 @@ export default function Fetch3hTemp() {
             <div className="py-2 font-medium border-r border-gray-100 bg-gray-50">
               시각
             </div>
-            {temps.map((t, i) => {
+            {hours3.map((t, i) => {
               const hour = t.datetime.getHours();
               const isNow = i === 0; // 기준 시각 강조(선택)
               return (
@@ -63,17 +64,11 @@ export default function Fetch3hTemp() {
             <div className="py-3 bg-gray-50 font-medium border-r border-gray-100 flex items-center justify-center">
               날씨
             </div>
-            <div className="py-3 text-lg">☀️</div>
-            <div className="py-3 text-lg">☀️</div>
-            <div className="py-3 text-lg">☀️</div>
-            <div className="py-3 text-lg bg-blue-50/30">🌙</div>
-            <div className="py-3 text-lg">🌙</div>
-            <div className="py-3 text-lg">🌙</div>
-            <div className="py-3 text-lg">🌙</div>
-            <div className="py-3 text-lg">☀️</div>
-            <div className="py-3 text-lg">☀️</div>
-            <div className="py-3 text-lg">☀️</div>
-            <div className="py-3 text-lg">☀️</div>
+            {hours3.map((t, i) => (
+              <div className="py-3 text-lg" key={i}>
+                {skyToEmoji(t.sky)}
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-cols-[60px_1fr] relative h-24 border-b border-gray-100">
@@ -82,7 +77,7 @@ export default function Fetch3hTemp() {
             </div>
             <div className="relative w-full h-full">
               <div className="absolute inset-0 grid grid-cols-11 items-start pt-2 z-10">
-                {temps.map((t, i) => (
+                {hours3.map((t, i) => (
                   <span key={i}>
                     {t.datetime.getHours()}시 → {t.temperature}℃
                   </span>
@@ -106,19 +101,13 @@ export default function Fetch3hTemp() {
 
           <div className="grid grid-cols-[60px_repeat(11,1fr)] border-b border-gray-100 text-gray-500">
             <div className="py-2 bg-gray-50 font-medium border-r border-gray-100">
-              강수확률
+              강수량
             </div>
-            <div className="py-2">10%</div>
-            <div className="py-2">10%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2 bg-blue-50/30">0%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2">0%</div>
-            <div className="py-2">10%</div>
+            {hours3.map((t, i) => (
+              <div className="py-2" key={i}>
+                {Number.isNaN(t.pcp) ? 0 : t.pcp}
+              </div>
+            ))}
           </div>
         </div>
       </div>

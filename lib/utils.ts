@@ -9,6 +9,7 @@ import type {
   WeatherIconKey,
   WeatherInput,
   KmaObservation,
+  Hours3Forecast,
 } from "@/types/kma";
 
 export function validateLatLon(lat: number, lon: number) {
@@ -367,4 +368,69 @@ export function parseTm(tm: string): Date {
   const h = Number(tm.slice(8, 10));
   const min = Number(tm.slice(10, 12));
   return new Date(Date.UTC(y, m, d, h, min));
+}
+
+export function extractHour3(
+  items: ForecastItem[],
+  now: Date = new Date(),
+): Hours3Forecast[] {
+  const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const map = new Map<string, Hours3Forecast>();
+
+  for (const item of items) {
+    if (
+      item.category !== "TMP" &&
+      item.category !== "SKY" &&
+      item.category !== "PCP"
+    )
+      continue;
+
+    const datetime = parseKmaDate(item.fcstDate, item.fcstTime);
+    const key = `${item.fcstDate}${item.fcstTime}`;
+
+    if (!map.has(key)) {
+      map.set(key, {
+        datetime,
+        pcp: 0, // ✅ 반드시 필요
+      });
+    }
+
+    const target = map.get(key)!;
+
+    if (item.category === "TMP") {
+      target.temperature = Number(item.fcstValue);
+    }
+
+    if (item.category === "SKY") {
+      target.sky = Number(item.fcstValue);
+    }
+
+    if (item.category === "PCP") {
+      target.pcp = Number(item.fcstValue); // "1" → 1
+    }
+  }
+
+  return Array.from(map.values())
+    .filter(
+      (f) =>
+        f.datetime >= now &&
+        f.datetime <= end &&
+        f.datetime.getHours() % 3 === 0,
+    )
+    .sort((a, b) => a.datetime.getTime() - b.datetime.getTime());
+}
+
+export function skyToEmoji(sky?: number): string {
+  switch (sky) {
+    case 1:
+      return "☀️"; // 맑음
+    case 2:
+      return "🌤️"; // 구름조금
+    case 3:
+      return "⛅"; // 구름많음
+    case 4:
+      return "☁️"; // 흐림
+    default:
+      return "❓";
+  }
 }

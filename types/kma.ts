@@ -220,3 +220,10 @@ export type TempItem = {
   datetime: Date;
   temperature: number;
 };
+
+export type Hours3Forecast = {
+  datetime: Date;
+  temperature?: number;
+  sky?: number;
+  pcp?: number;
+};
