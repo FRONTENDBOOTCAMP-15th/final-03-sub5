@@ -3,21 +3,38 @@
 import Navi from "@/app/components/common/Navi";
 import ProfileButton from "@/app/profile/components/ProfileButton";
 import ProfileHeader from "@/app/profile/components/ProfileHeader";
+import useUserStore from "@/zustand/user";
 import Image from "next/image";
 import React, { useRef, useState } from "react";
 
 export default function ProfileEdit() {
+  // zustand에서 현재 저장된 값 가져오기
+  const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
+
+  // 모달
   const [openPhotoSetter, setOpenPhotoSetter] = useState(false);
   const [openGalleryModal, setOpenGalleryModal] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [gender, setGender] = useState("male");
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+
+  // 숨겨진 <input type="file"> 클릭
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // 사진 촬영 버튼용 input (카메라)
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
+
+  // zustand 값으로 초기화
+  const [selectedImage, setSelectedImage] = useState(
+    user?.profileImage || null,
+  );
+  const [gender, setGender] = useState(user?.extra?.gender || "male");
+  const [nickname, setNickname] = useState(user?.name || "");
+  const [birth, setBirth] = useState(user?.extra?.birthDate || "");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]; // 파일 가져오기
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      const imageUrl = URL.createObjectURL(file); // 미리보기 URL 생성
+      setSelectedImage(imageUrl); // state 업데이트
     }
   };
 
@@ -26,12 +43,30 @@ export default function ProfileEdit() {
     setOpenPhotoSetter(false);
   };
 
+  const handleSubmit = () => {
+    if (!user) return;
+
+    // zustand에 저장
+    setUser({
+      ...user,
+      name: nickname,
+      profileImage: selectedImage,
+      extra: {
+        ...user.extra,
+        gender: gender as "male" | "female",
+        birthDate: birth,
+      },
+    });
+
+    setOpenSuccessModal(true); // 정보 업데이트 성공 모달 열기
+  };
+
   return (
     <>
-      <ProfileHeader />
+      <ProfileHeader title="프로필 수정" />
 
       {/* ----------------- 프로필 수정 : edit-profile ----------------- */}
-      <main className="edit-profile mx-4">
+      <main className="edit-profile mx-4 pb-20">
         {/* 프로필 사진 + 카메라 아이콘 */}
         <div className="flex items-center justify-center relative w-[70px] h-[70px] mx-auto">
           <Image
@@ -65,6 +100,8 @@ export default function ProfileEdit() {
               type="text"
               placeholder="닉네임을 입력하세요"
               className="border border-[#d3d3d3] p-2 rounded-[6px]"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
             />
           </div>
 
@@ -79,7 +116,9 @@ export default function ProfileEdit() {
                   className="hidden"
                   value="male"
                   checked={gender === "male"}
-                  onChange={(e) => setGender(e.target.value)}
+                  onChange={(e) =>
+                    setGender(e.target.value as "male" | "female")
+                  }
                 />
                 <span className="w-4 h-4 rounded border border-[#d3d3d3] flex items-center justify-center">
                   {gender === "male" && (
@@ -95,7 +134,9 @@ export default function ProfileEdit() {
                   className="hidden"
                   value="female"
                   checked={gender === "female"}
-                  onChange={(e) => setGender(e.target.value)}
+                  onChange={(e) =>
+                    setGender(e.target.value as "male" | "female")
+                  }
                 />
 
                 <span className="w-4 h-4 rounded border border-[#d3d3d3] flex items-center justify-center">
@@ -115,10 +156,12 @@ export default function ProfileEdit() {
             <input
               type="date"
               className="border border-[#d3d3d3] p-2 rounded-[6px]"
+              value={birth}
+              onChange={(e) => setBirth(e.target.value)}
             />
           </div>
 
-          <ProfileButton />
+          <ProfileButton onSubmit={handleSubmit} />
         </div>
       </main>
 
@@ -130,6 +173,16 @@ export default function ProfileEdit() {
           id="photo-modal"
           className="fixed inset-0 z-50 flex items-center justify-center"
         >
+          {/* --------------------- 실제 카메라 연결 input --------------------- */}
+          <input
+            type="file"
+            ref={cameraInputRef}
+            className="hidden"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileChange}
+          />
+
           {/* ★ dim 추가 */}
           <div className="absolute inset-0 bg-black/50 z-0"></div>
 
@@ -139,7 +192,13 @@ export default function ProfileEdit() {
               <h2 className="font-semibold border-b border-gray-300 p-3 w-full text-center text-gray-500">
                 프로필 사진 설정
               </h2>
-              <button className="modal-photo-action flex items-center gap-3 border-b border-gray-200 px-7 py-3 w-full cursor-pointer">
+              <button
+                className="modal-photo-action flex items-center gap-3 border-b border-gray-200 px-7 py-3 w-full cursor-pointer"
+                onClick={() => {
+                  cameraInputRef.current?.click();
+                  setOpenPhotoSetter(false);
+                }}
+              >
                 <Image
                   src="/icons/edit-camera.svg"
                   alt="사진 촬영"
@@ -243,6 +302,43 @@ export default function ProfileEdit() {
                   선택
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ●●●●● 프로필 저장 성공 시에만 렌더링되는 모달창 */}
+      {openSuccessModal && (
+        <div
+          id="post-submit-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
+          {/* ★ dim 추가 */}
+          <div className="absolute inset-0 bg-black/50 z-0"></div>
+
+          {/* 모달 카드 */}
+          <div className="post-submit-card px-8 w-full relative z-10">
+            <div className="modal-photo-setter flex flex-col items-center justify-center rounded-[20px] mx-auto max-w-[420px] w-full bg-[#ffffff]">
+              <Image
+                src="/icons/post-submitted.svg"
+                alt=""
+                width={65}
+                height={65}
+                className="my-4"
+              />
+
+              <div className="submit-alert items-center justify-center flex flex-col mb-4 pb-5">
+                <h2 className="font-semibold w-full text-gray-600 text-lg">
+                  프로필이 저장되었습니다.
+                </h2>
+              </div>
+
+              <button
+                className="post-submit-btn font-semibold text-white border border-[#003458] bg-[#003458] rounded-b-[20px] p-3 w-full cursor-pointer"
+                onClick={() => setOpenSuccessModal(false)}
+              >
+                확인
+              </button>
             </div>
           </div>
         </div>
