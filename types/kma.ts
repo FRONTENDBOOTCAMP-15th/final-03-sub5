@@ -229,3 +229,8 @@ export interface RegIdRow {
   lon: number;
   lat: number;
 }
+
+export interface AnalysisFactor {
+  label: string;
+  penalty: number;
+}

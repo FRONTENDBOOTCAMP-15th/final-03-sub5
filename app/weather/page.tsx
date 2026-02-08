@@ -26,6 +26,8 @@ import {
   getSKY,
 } from "@/lib/utils";
 import UVCard from "./UVCard";
+import { getRunningTip } from "@/lib/runningTips";
+import { getAnalysisFactors } from "@/lib/runningAnalysis";
 
 export async function getLegalDongName(
   pos: LocationCoords,
@@ -85,6 +87,7 @@ export default function WeatherPage() {
   const [dongName, setDongName] = useState<string | null>(null);
   const [dateTime, setDateTime] = useState<string | null>(null);
   const [grade, setGrade] = useState<string | null>(null);
+  const [score, setScore] = useState<number>(0);
   const [weather, setWeather] = useState<KmaObservation | null>(null);
   const [icon, setIcon] = useState<string | null>(null);
   const [sky, setSky] = useState<number | null>(null);
@@ -129,6 +132,7 @@ export default function WeatherPage() {
         };
 
         const score = outdoorScore(obs); // 75
+        setScore(score);
         const grade = outdoorGrade(score); // "보통"
         setGrade(grade);
         //console.log(grade);
@@ -272,20 +276,33 @@ export default function WeatherPage() {
               <div className="text-xs text-gray-600">날씨 조건 분석 완료</div>
             </div>
           </div>
-
-          <div className="bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl p-3">
-            분석요인
-            <br />
-            <span className="text-gray-500">적정 기온</span>
-          </div>
-
-          <div className="bg-blue-50 text-blue-700 text-xs rounded-xl p-3">
-            러닝 팁
-            <br />
-            <span className="text-gray-900">
-              가벼운 바람이 불고 있습니다. 호흡에 유의하며 페이스를 유지하세요!
-            </span>
-          </div>
+          {weather && (
+            <div className="bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl p-3">
+              분석요인
+              <br />
+              <ul className="mt-1 space-y-0.5 text-gray-500 font-normal">
+                {getAnalysisFactors(weather).length === 0 ? (
+                  <li>모든 조건이 양호합니다</li>
+                ) : (
+                  getAnalysisFactors(weather).map((f, i) => (
+                    <li key={i}>
+                      • {f.label}{" "}
+                      <span className="text-gray-400">(-{f.penalty})</span>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
+          )}
+          {weather && (
+            <div className="bg-blue-50 text-blue-700 text-xs rounded-xl p-3">
+              러닝 팁
+              <br />
+              <span className="text-gray-900">
+                {getRunningTip(score, weather)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
