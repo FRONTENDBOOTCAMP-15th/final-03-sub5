@@ -29,6 +29,7 @@ import UVCard from "./UVCard";
 import { getRunningTip } from "@/lib/runningTips";
 import { getAnalysisFactors } from "@/lib/runningAnalysis";
 import RunningAnalysisCard from "./RunningAnalysisCard";
+import WeatherInfoCard from "./WeatherInfoCard";
 
 export async function getLegalDongName(
   pos: LocationCoords,
@@ -188,63 +189,29 @@ export default function WeatherPage() {
           </div>
 
           <div className="flex flex-wrap gap-3 justify-center">
-            <div className="bg-white rounded-xl flex items-center p-3 text-xs shadow gap-3 min-w-[70px]">
-              <div className="text-lg bg-[#DBEAFE] rounded-md">
-                <Image
-                  src="/icons/humidity-mid-outline.svg"
-                  width={24}
-                  height={24}
-                  alt="습도"
-                />
-              </div>
-              <div className="text-left">
-                {weather?.HM && (
-                  <>
-                    <div className="font-semibold text-[0.65rem]">습도</div>
-                    <div className="text-gray-500 text-xs">{weather?.HM}%</div>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="bg-white rounded-xl flex items-center p-3 shadow gap-3 min-w-[70px]">
-              <div className="text-lg bg-[#DBFCE7] rounded-md">
-                <Image
-                  src="/icons/wind-line.svg"
-                  width={24}
-                  height={24}
-                  alt="풍속"
-                />
-              </div>
-              <div className="text-left">
-                {weather?.WS && (
-                  <>
-                    <div className="font-semibold text-[0.65rem]">풍속</div>
-                    <div className="text-gray-500 text-xs">
-                      {weather?.WS} m/s
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+            <WeatherInfoCard
+              iconSrc="/icons/humidity-mid-outline.svg"
+              iconBg="bg-[#DBEAFE]"
+              label="습도"
+              value={weather?.HM}
+              unit="%"
+            />
 
-            <div className="bg-white rounded-xl flex items-center p-3 text-[0.65rem] shadow gap-3 min-w-[70px]">
-              <div className="text-lg bg-[#F3E8FF] rounded-md">
-                <Image
-                  src="/icons/view-fill.svg"
-                  width={24}
-                  height={24}
-                  alt="가시거리"
-                />
-              </div>
-              <div className="text-left">
-                {weather?.VS && (
-                  <>
-                    <div className="text-[0.65rem] font-semibold">가시거리</div>
-                    <div className="text-gray-500 text-xs">{weather?.VS} m</div>
-                  </>
-                )}
-              </div>
-            </div>
+            <WeatherInfoCard
+              iconSrc="/icons/wind-line.svg"
+              iconBg="bg-[#DBFCE7]"
+              label="풍속"
+              value={weather?.WS}
+              unit="m/s"
+            />
+
+            <WeatherInfoCard
+              iconSrc="/icons/view-fill.svg"
+              iconBg="bg-[#F3E8FF]"
+              label="가시거리"
+              value={weather?.VS}
+              unit="m"
+            />
             <UVCard pos={pos} />
           </div>
         </div>
