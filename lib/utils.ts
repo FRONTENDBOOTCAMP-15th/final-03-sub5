@@ -269,7 +269,8 @@ export function getSKY({ caTot, ww }: WeatherInput): number {
     // KMA WW 코드에서 강수/현상 범주
     // (비, 눈, 진눈개비, 소나기, 뇌우 등)
     if (
-      (ww >= 20 && ww <= 99) // 관측 가능한 기상현상 전반
+      ww >= 20 &&
+      ww <= 99 // 관측 가능한 기상현상 전반
     ) {
       return 4;
     }
@@ -278,10 +279,10 @@ export function getSKY({ caTot, ww }: WeatherInput): number {
   // 전운량 기준 처리
   if (caTot === undefined) return 1;
 
-  if (caTot <= 2) return 1;      // 맑음
-  if (caTot <= 5) return 2;      // 구름조금
-  if (caTot <= 8) return 3;      // 구름많음
-  return 4;                      // 흐림
+  if (caTot <= 2) return 1; // 맑음
+  if (caTot <= 5) return 2; // 구름조금
+  if (caTot <= 8) return 3; // 구름많음
+  return 4; // 흐림
 }
 
 export function outdoorScore(obs: KmaObservation): number {
@@ -471,7 +472,6 @@ export function formatLabel(date: Date) {
   return `${day}일(${weekday})`;
 }
 
-
 function fastDistance(a: LocationCoords, b: LocationCoords): number {
   const latRad = ((a.lat + b.lat) * 0.5 * Math.PI) / 180;
   const x = (b.lon - a.lon) * Math.cos(latRad);
@@ -488,7 +488,7 @@ export function findNearestStationFast(
 
   for (const s of stations) {
     const d = fastDistance(pos, { lat: s.lat, lon: s.lon });
-   
+
     if (d < minDist) {
       minDist = d;
       nearest = s;
@@ -507,7 +507,7 @@ export function findNearestRegionFast(
 
   for (const s of stations) {
     const d = fastDistance(pos, { lat: s.lat, lon: s.lon });
-   
+
     if (d < minDist) {
       minDist = d;
       nearest = s;
@@ -515,4 +515,16 @@ export function findNearestRegionFast(
   }
 
   return nearest;
+}
+
+export function getNearestBaseTime(now: Date): string {
+  const BASE_TIMES = [5, 8, 11, 14, 17, 20, 23];
+
+  const currentHour = now.getHours();
+
+  // 현재 시각 이하 중 가장 큰 발표 시각 선택
+  const targetHour =
+    [...BASE_TIMES].reverse().find((h) => h <= currentHour) ?? 23;
+
+  return `${String(targetHour).padStart(2, "0")}00`;
 }

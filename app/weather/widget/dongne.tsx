@@ -1,6 +1,11 @@
 "use client";
 
-import { extractHour3, getCurrentTime, skyToEmoji } from "@/lib/utils";
+import {
+  extractHour3,
+  getCurrentTime,
+  skyToEmoji,
+  getNearestBaseTime,
+} from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Hours3Forecast } from "@/types/kma";
 
@@ -15,11 +20,17 @@ export default function Fetch3Hours() {
     async function fetchWeather() {
       try {
         const today = getCurrentTime().slice(0, 8);
+        /* TODO base_time 수정 0500 0800 1100 1400 1700 2000 2300
+         * 현재 시각과 가장 가까운 시각을 base_time으로 설정함
+         * 예를 들어 현재 시각이 15:40 분이라면 base_time은 14:00
+         */
+        const now = new Date();
+        const baseTime = getNearestBaseTime(now);
         const res = await fetch(
-          `/api/forecast/hours?nx=63&ny=124&base_date=${today}&base_time=0500`,
+          `/api/forecast/hours?nx=63&ny=124&base_date=${today}&base_time=${baseTime}`,
         );
         const data = await res.json();
-        // TODO 예보값이 없을 때는 전일 자료를 그대로 씀
+
         const items = data.response.body.items.item;
         setHours3(extractHour3(items, new Date()));
       } catch (err: any) {
