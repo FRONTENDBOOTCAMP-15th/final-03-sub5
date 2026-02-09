@@ -15,9 +15,9 @@ export default function GoalListPage() {
   const setGoals = useGoalsStore((state) => state.setGoals);
 
   const goals = useGoalsStore((state) => state.goals);
-  const begLevel = goals.filter((goal) => goal.extra.level === "초급").length;
-  const intLevel = goals.filter((goal) => goal.extra.level === "중급").length;
-  const advLevel = goals.filter((goal) => goal.extra.level === "고급").length;
+  const userLevel = useGoalsStore((state) => state.userLevel);
+  const levelIcon = userLevel?.level === "초급" ? "🌱" : userLevel?.level === "중급" ? "🌿" : "🌳";
+  const levelGoalCount = goals.filter((goal) => goal.extra.level === userLevel?.level || !goal.extra.level).length;
   useEffect(() => {
     const fetchGoals = async () => {
       if (user?.token) {
@@ -38,9 +38,7 @@ export default function GoalListPage() {
             flex flex-col gap-4 px-4"
         >
           <GoalHeader />
-          {begLevel > 0 && <section>🌱초급 총 {begLevel}개</section>}
-          {intLevel > 0 && <section>🌿중급 총 {intLevel}개</section>}
-          {advLevel > 0 && <section>🌳고급 총 {advLevel}개</section>}
+          {userLevel && <section>{levelIcon}{userLevel.level} 총 {levelGoalCount}개</section>}
           {/* 통계를 가로로 배치*/}
           <GoalStats />
           <GoalFilter />
