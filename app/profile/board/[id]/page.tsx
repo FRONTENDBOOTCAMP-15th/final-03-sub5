@@ -28,7 +28,7 @@ export default function PostDetailPage({
   const [title, setTitle] = useState(""); // 편집할 제목
   const [content, setContent] = useState(""); // 편집할 내용
 
-  // 댓글 관리 ★★★★★★★★★★★★★★★★★★★★★★★★★★
+  // 댓글 관리
   const [replyContent, setReplyContent] = useState(""); // 댓글 내용
   const [replyRefresh, setReplyRefresh] = useState(0); // 댓글 목록 새로 고침
 
