@@ -32,7 +32,7 @@ import { getAnalysisFactors } from "@/lib/runningAnalysis";
 import RunningAnalysisCard from "./RunningAnalysisCard";
 import WeatherInfoCard from "./WeatherInfoCard";
 import { useRouter } from "next/navigation";
-
+import WeatherCardSkeleton from "./WeatherCardSkelecton";
 
 export async function getLegalDongName(
   pos: LocationCoords,
@@ -88,15 +88,15 @@ async function getWeatherData(
 }
 
 export default function WeatherPage() {
-    const router = useRouter();
+  const router = useRouter();
   const [pos, setPos] = useState<LocationCoords | null>(null);
   const [dongName, setDongName] = useState<string | null>(null);
   const [dateTime, setDateTime] = useState<string | null>(null);
   const [grade, setGrade] = useState<string | null>(null);
   const [score, setScore] = useState<number>(0);
   const [weather, setWeather] = useState<KmaObservation | null>(null);
-  const [icon, setIcon] = useState<string | null>(null);
   const [sky, setSky] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -144,6 +144,8 @@ export default function WeatherPage() {
         //console.log(grade);
       } catch (e) {
         console.error(e);
+      } finally {
+        setIsLoading(false); // ✅ 로딩 종료
       }
     })();
   }, []);
@@ -211,20 +213,20 @@ export default function WeatherPage() {
       {/*<!-- 날씨 페이지-->*/}
 
       <div className="min-w-[375px] items-stretch space-y-6 pl-4 pr-4 pb-0 pt-16">
-      <div className="flex items-start justify-between">
-  {/* 왼쪽: 제목 + 설명 */}
-  <div className="flex flex-col">
-    <h1 className="text-xl font-bold">실시간 날씨</h1>
-    <p className="text-sm text-gray-500">
-      현재 위치의 날씨와 러닝 최적도를 확인하세요
-    </p>
-  </div>
+        <div className="flex items-start justify-between">
+          {/* 왼쪽: 제목 + 설명 */}
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold">실시간 날씨</h1>
+            <p className="text-sm text-gray-500">
+              현재 위치의 날씨와 러닝 최적도를 확인하세요
+            </p>
+          </div>
 
-  {/* 오른쪽 끝: 예보 보기 버튼 */}
-  <button
-    type="button"
-    aria-label="예보 보기"
-    className="
+          {/* 오른쪽 끝: 예보 보기 버튼 */}
+          <button
+            type="button"
+            aria-label="예보 보기"
+            className="
       flex items-center cursor-pointer
       px-3 py-1.5
       text-sm font-medium
@@ -239,75 +241,78 @@ export default function WeatherPage() {
       whitespace-nowrap
       mt-1
     "
-    onClick={() => {
-      router.push("/weather/widget");
-    }}
-  >
-    예보 보기
-  </button>
-</div>
-
-
-        {/*<!-- 날씨 카드 -->*/}
-        <div className="bg-sky-50 border border-gray-200 rounded-xl p-5 shadow-sm space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Image
-                src="/icons/ep--location.svg"
-                width={24}
-                height={24}
-                alt="위치"
-              />{" "}
-              {dongName}
-            </div>
-            <span className="text-xs text-gray-500">{dateTime}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-10">
-              <span className="text-3xl leading-none block">
-                {skyToEmoji(sky ?? undefined, new Date())}
-              </span>
-            </div>
-            <div className="flex flex-col justify-center leading-none pl-1">
-              {weather && (
-                <>
-                  <div className="flex items-end text-3xl font-semibold">
-                    {weather?.TA}
-                    <span className="text-xl text-gray-500 ml-1">°C</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3 justify-center">
-            <WeatherInfoCard
-              iconSrc="/icons/humidity-mid-outline.svg"
-              iconBg="bg-[#DBEAFE]"
-              label="습도"
-              value={weather?.HM}
-              unit="%"
-            />
-
-            <WeatherInfoCard
-              iconSrc="/icons/wind-line.svg"
-              iconBg="bg-[#DBFCE7]"
-              label="풍속"
-              value={weather?.WS}
-              unit="m/s"
-            />
-
-            <WeatherInfoCard
-              iconSrc="/icons/view-fill.svg"
-              iconBg="bg-[#F3E8FF]"
-              label="가시거리"
-              value={weather?.VS}
-              unit="m"
-            />
-            <UVCard pos={pos} />
-          </div>
+            onClick={() => {
+              router.push("/weather/widget");
+            }}
+          >
+            예보 보기
+          </button>
         </div>
+
+        {/* 날씨 카드 */}
+        {isLoading ? (
+          <WeatherCardSkeleton />
+        ) : (
+          <div className="bg-sky-50 border border-gray-200 rounded-xl p-5 shadow-sm space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Image
+                  src="/icons/ep--location.svg"
+                  width={24}
+                  height={24}
+                  alt="위치"
+                />{" "}
+                {dongName}
+              </div>
+              <span className="text-xs text-gray-500">{dateTime}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-10">
+                <span className="text-3xl leading-none block">
+                  {skyToEmoji(sky ?? undefined, new Date())}
+                </span>
+              </div>
+              <div className="flex flex-col justify-center leading-none pl-1">
+                {weather && (
+                  <>
+                    <div className="flex items-end text-3xl font-semibold">
+                      {weather?.TA}
+                      <span className="text-xl text-gray-500 ml-1">°C</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3 justify-center">
+              <WeatherInfoCard
+                iconSrc="/icons/humidity-mid-outline.svg"
+                iconBg="bg-[#DBEAFE]"
+                label="습도"
+                value={weather?.HM}
+                unit="%"
+              />
+
+              <WeatherInfoCard
+                iconSrc="/icons/wind-line.svg"
+                iconBg="bg-[#DBFCE7]"
+                label="풍속"
+                value={weather?.WS}
+                unit="m/s"
+              />
+
+              <WeatherInfoCard
+                iconSrc="/icons/view-fill.svg"
+                iconBg="bg-[#F3E8FF]"
+                label="가시거리"
+                value={weather?.VS}
+                unit="m"
+              />
+              <UVCard pos={pos} />
+            </div>
+          </div>
+        )}
       </div>
 
       {/*-- 러닝 최적도 분석 -->*/}
