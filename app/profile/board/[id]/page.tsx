@@ -33,7 +33,7 @@ export default function PostDetailPage({
   const [replyRefresh, setReplyRefresh] = useState(0); // 댓글 목록 새로 고침
 
   // 권한 체크
-  const isAdmin = user?.role === "admin" || false;
+  const isAdmin = user?.extra?.role === "admin" || false;
   const isAuthor = post?.user._id === user?._id || false;
 
   // 모달

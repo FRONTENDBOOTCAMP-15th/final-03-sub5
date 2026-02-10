@@ -13,16 +13,11 @@ export default function MyBoard() {
   // useState
   const [currentPage, setCurrentPage] = useState(1);
   const [posts, setPosts] = useState<PostListItem[]>([]);
+  const [totalPages, setTotalPages] = useState(1); // 🔥 추가
 
   // zustand 상태 가져오기
   const user = useUserStore((state) => state.user);
   const token = user?.token?.accessToken;
-
-  // 일반 변수들
-  const postsPerPage = 5;
-  const start = (currentPage - 1) * 5; // 시작 인덱스 (0~4  |  5~9  | 10~14)
-  const end = start + postsPerPage;
-  const currentPosts = posts?.slice(start, end) || [];
 
   // API 호출
   useEffect(() => {
@@ -31,20 +26,25 @@ export default function MyBoard() {
         return;
       }
 
-      const result = await fetchAPI("/posts/users?type=qna", {
-        method: "GET",
-        token: token,
-      });
+      const result = await fetchAPI(
+        `/posts/users?type=qna&page=${currentPage}&limit=5`,
+        {
+          // 🔥 수정
+          method: "GET",
+          token: token,
+        },
+      );
 
       if (result.ok === 1) {
-        setPosts(result.item);
+        setPosts(result.item || []);
+        setTotalPages(Number(result.pagination?.totalPages) || 1); // 🔥 추가
       } else {
         console.error(result.message || "게시글 불러오기 실패");
       }
     };
 
     fetchMyPosts();
-  }, [token]);
+  }, [token, currentPage]); // 🔥 currentPage 추가
 
   // 날짜 형식 변경 - 연도/월/일만 표시
   const formatDate = (dateString: string) => {
@@ -73,7 +73,7 @@ export default function MyBoard() {
       <main className="pb-16">
         <ul className="mx-5 my-8 text-center">
           {posts && posts.length > 0 ? (
-            currentPosts.map((post) => (
+            posts.map((post) => (
               <li key={post._id} className="border-b border-gray-200 px-2 py-3">
                 <Link
                   href={`/profile/board/${post._id}`}
@@ -98,7 +98,7 @@ export default function MyBoard() {
       </main>
       <Pagination
         currentPage={currentPage}
-        totalPages={6}
+        totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
       <Navi />

@@ -6,7 +6,6 @@ export interface User {
   name: string;
   image?: string;
   profileImage?: string | null;
-  role?: "user" | "admin";
   token?: {
     accessToken: string;
     refreshToken: string;
@@ -18,6 +17,7 @@ export interface User {
     height?: number;
     weight?: number;
     onboardingDone?: boolean;
+    role?: "user" | "admin";
   };
 }
 

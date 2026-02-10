@@ -44,7 +44,7 @@ export default function InquiryListPage() {
 
       if (result.ok === 1) {
         setPosts(result.item || []);
-        setTotalPages(result.pagination?.totalPages || 1);
+        setTotalPages(Number(result.pagination?.totalPages) || 1);
       } else {
         console.error(result.message || "게시글 불러오기 실패");
       }
