@@ -186,8 +186,9 @@ export type WeatherIconKey =
   | "unknown";
 
 export type WeatherInput = {
-  caTot: number; // CA(TOT)
-  ww: number; // WW
+  caTot: number;
+  ww: number;
+  wc: number;
 };
 
 export interface KakaoAddressResult {
@@ -203,6 +204,7 @@ export interface KakaoSearchResponse {
 
 export type KmaObservation = {
   CA_TOT: number; // 전운량 (0~10)
+  WC: number; // 현재 기상현상 GST
   WW: number; // 기상현상 코드
   TA: number; // 기온 (°C)
   HM: number; // 상대습도 (%)
@@ -236,8 +238,9 @@ export interface AnalysisFactor {
 }
 
 export type MidHalfDay = {
-  date: string;       // YYYYMMDD
-  hour: "00" | "12";  // 오전 / 오후
-  sky: string;        // WB01, WB03
-  st: number;         // RN_ST
+  date: string; // YYYYMMDD
+  hour: "00" | "12"; // 오전 / 오후
+  sky: string; // WB01, WB03
+  st: number; // RN_ST
+  pref: number;
 };

@@ -18,17 +18,11 @@ import type {
 import {
   getCoordinates,
   getCurrentTime,
-  getWeatherIcon,
-  outdoorScore,
-  outdoorGrade,
   getCurrentTimeKoreanFormat,
-  getUVTime,
   skyToEmoji,
   getSKY,
 } from "@/lib/utils";
 import UVCard from "./UVCard";
-import { getRunningTip } from "@/lib/runningTips";
-import { getAnalysisFactors } from "@/lib/runningAnalysis";
 import RunningAnalysisCard from "./RunningAnalysisCard";
 import WeatherInfoCard from "./WeatherInfoCard";
 import { useRouter } from "next/navigation";
@@ -92,68 +86,21 @@ export default function WeatherPage() {
   const [pos, setPos] = useState<LocationCoords | null>(null);
   const [dongName, setDongName] = useState<string | null>(null);
   const [dateTime, setDateTime] = useState<string | null>(null);
-  const [grade, setGrade] = useState<string | null>(null);
-  const [score, setScore] = useState<number>(0);
+
   const [weather, setWeather] = useState<KmaObservation | null>(null);
   const [sky, setSky] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
+  const [isBaseLoaded, setIsBaseLoaded] = useState(false);
+
+  const isLoading = !isBaseLoaded;
   useEffect(() => {
+    let mounted = true;
+
     (async () => {
       try {
         const coords = await getCoordinates();
-        setPos(coords);
-        //console.log(coords.lat, coords.lon);
+        if (!mounted) return;
 
-        const dong = await getLegalDongName(
-          coords,
-          process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY!,
-        );
-        setDongName(dong);
-        setDateTime(getCurrentTimeKoreanFormat());
-
-        const w = await getWeatherData(coords);
-        setWeather(w);
-        //TODO 날씨 아이콘 구현
-        /*
-        const icon = getWeatherIcon({
-          caTot: w?.CA_TOT ?? 0,
-          ww: w?.WW ?? 0,
-        });
-        */
-        const skyValue = getSKY({
-          caTot: w?.CA_TOT ?? 0,
-          ww: w?.WW ?? 0,
-        });
-        setSky(skyValue);
-
-        //TODO 러닝 최적도 분석 함수
-        const obs: KmaObservation = {
-          CA_TOT: 8,
-          WW: 40,
-          TA: 5.7,
-          HM: 64.0,
-          WS: 1.2,
-          VS: 6740,
-        };
-
-        const score = outdoorScore(obs); // 75
-        setScore(score);
-        const grade = outdoorGrade(score); // "보통"
-        setGrade(grade);
-        //console.log(grade);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false); // ✅ 로딩 종료
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const coords = await getCoordinates();
         setPos(coords);
 
         const dong = await getLegalDongName(
@@ -164,47 +111,43 @@ export default function WeatherPage() {
         setDateTime(getCurrentTimeKoreanFormat());
 
         const w = await getWeatherData(coords);
-
         if (w) {
-          // 1️⃣ API 성공 → 상태 업데이트 + 로컬스토리지 저장
           setWeather(w);
           saveCurrentWeather(w);
-
-          const skyValue = getSKY({
-            caTot: w.CA_TOT,
-            ww: w.WW,
-          });
-          setSky(skyValue);
+          setSky(getSKY({ caTot: w.CA_TOT, ww: w.WW, wc: w.WC }));
         } else {
-          // 2️⃣ API 실패 → 로컬스토리지 fallback
           const cached = loadCurrentWeather();
           if (cached) {
             setWeather(cached.data);
-
-            const skyValue = getSKY({
-              caTot: cached.data.CA_TOT,
-              ww: cached.data.WW,
-            });
-            setSky(skyValue);
+            setSky(
+              getSKY({
+                caTot: cached.data.CA_TOT,
+                ww: cached.data.WW,
+                wc: cached.data.WC,
+              }),
+            );
           }
         }
 
         const obs: KmaObservation = {
           CA_TOT: 8,
-          WW: 40,
+          WC: -9,
+          WW: -9,
           TA: 5.7,
           HM: 64.0,
           WS: 1.2,
           VS: 6740,
         };
 
-        const score = outdoorScore(obs);
-        setScore(score);
-        setGrade(outdoorGrade(score));
-      } catch (e) {
-        console.error(e);
+        //setScore(outdoorScore(obs));
+      } finally {
+        if (mounted) setIsBaseLoaded(true);
       }
     })();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (

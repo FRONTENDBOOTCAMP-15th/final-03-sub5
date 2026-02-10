@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-
 import { useEffect, useState } from "react";
 
 import Fetch3Hours from "./dongne";
-import { ForecastRow, MidHalfDay, RegIdRow } from "@/types/kma";
+
 import {
   formatLabel,
   formatDate,
@@ -19,10 +18,18 @@ import {
   loadTodayHalfDayCache,
   isValidTemp,
 } from "@/lib/localWeather";
+
 import type { HalfDayForecast, TodayHalfDayCache } from "@/lib/localWeather";
+import type { ForecastRow, MidHalfDay, RegIdRow } from "@/types/kma";
 
 import SearchLocationBar from "./components/searchLocationBar";
 import ShortTermColumns from "./ShortTermColumns";
+
+type MidTempDay = {
+  date: string;
+  min: number | null;
+  max: number | null;
+};
 
 export type MidForecastResponse = {
   raw: string;
@@ -52,16 +59,24 @@ export async function fetchMidForecastClient(
   return res.json();
 }
 
+export async function fetchMidTempForecast(
+  reg: string,
+): Promise<MidForecastResponse> {
+  const res = await fetch(`/api/forecast/mid-temp?reg=${reg}`);
+
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
+  }
+  return res.json();
+}
+
 export default function ForecastPage() {
   const [data, setData] = useState<ForecastRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<string>("역삼동");
   const [regidRows, setRegidRows] = useState<RegIdRow[]>([]);
   const [midRaw, setMidRaw] = useState<string | null>(null);
-
-  /* ===============================
-     ① 중기예보 raw → half-day 파싱
-     =============================== */
+  const [midTempRaw, setMidTempRaw] = useState<string | null>(null);
 
   const midItems: MidHalfDay[] = midRaw
     ? midRaw
@@ -74,18 +89,56 @@ export default function ForecastPage() {
             date: tmEf.slice(0, 8),
             hour: tmEf.slice(8, 10) as "00" | "12",
             sky: cols[6],
+            pref: Number(cols[7]),
             st: Number(cols[10]),
           };
         })
     : [];
 
-  /* ===============================
-     ② ⬅️ 여기! 날짜별 구조 변환 코드
-     =============================== */
+  const midTempMap: Map<string, { min: number | null; max: number | null }> =
+    midTempRaw
+      ? new Map(
+          Array.from(
+            midTempRaw
+              .split(/\r?\n/)
+              .map((l) => l.trim())
+              .filter(
+                (l) =>
+                  l.length > 0 &&
+                  !l.startsWith("#") &&
+                  l.includes(",") &&
+                  l.split(",").length >= 8,
+              )
+              .map((line) => {
+                const cols = line.split(",");
 
-  const midDays = Array.from(new Set(midItems.map((i) => i.date))).slice(0, 4);
+                // ✅ TM_EF (YYYYMMDDHHMM)
+                const date = cols[2].slice(0, 8);
+
+                const min = Number(cols[6]);
+                const max = Number(cols[7]);
+
+                return [
+                  date,
+                  {
+                    min: isNaN(min) ? null : min,
+                    max: isNaN(max) ? null : max,
+                  },
+                ] as [string, { min: number | null; max: number | null }];
+              }),
+          ).slice(0, 4), // ✅ 앞에서부터 4일치만
+        )
+      : new Map();
+
+  console.log(midTempMap);
+
+  const midDays = midRaw
+    ? Array.from(midTempMap.keys()) // ✅ midTempMap 기준으로 날짜 추출
+    : [];
 
   const midDayForecasts = midDays.map((date) => {
+    const temp = midTempMap.get(date);
+
     const am = midItems.find((i) => i.date === date && i.hour === "00");
     const pm = midItems.find((i) => i.date === date && i.hour === "12");
 
@@ -93,11 +146,15 @@ export default function ForecastPage() {
       date,
       am: {
         sky: am?.sky ?? null,
+        pref: am?.pref ?? null,
         st: am?.st ?? null,
+        temp: temp?.min ?? null,
       },
       pm: {
         sky: pm?.sky ?? null,
+        pref: pm?.pref ?? null,
         st: pm?.st ?? null,
+        temp: temp?.max ?? null,
       },
     };
   });
@@ -107,21 +164,17 @@ export default function ForecastPage() {
       .then((res) => res.json())
       .then((rows: RegIdRow[]) => {
         setRegidRows(rows);
-        //console.log("regidRows fetched:", rows); // ✅ fetch 직후
       })
       .catch(console.error);
   }, []);
 
   // 오늘 포함 +0 ~ +3일 (총 4일)
   // 1️⃣ KST 기준 오늘 날짜
-  const now = new Date();
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const kstNow = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  const kstDate = new Date(kstNow);
 
-  const todayString =
-    kst.getFullYear().toString() +
-    String(kst.getMonth() + 1).padStart(2, "0") +
-    String(kst.getDate()).padStart(2, "0");
-
+  const todayString = formatDate(new Date());
+  //console.log(data);
   // 2️⃣ 날짜(YYYYMMDD) 기준으로만 필터
   const days = Array.from(
     new Set(
@@ -142,95 +195,48 @@ export default function ForecastPage() {
         label: formatLabel(d),
       };
     });
-
   useEffect(() => {
-    // 1. 기본 예보
-    // TODO 하드코딩 된 regID 제거
     fetch3DayForecastClient("11B10101")
-      .then((rows) => setData(rows))
+      .then(setData)
       .catch((err) => setError(err.message));
 
-    // 2. 중기예보
+    // 중기 날씨
     fetchMidForecastClient("11B00000")
       .then((res) => setMidRaw(res.raw))
       .catch((err) => setError(err.message));
 
-    // 2. regid.json 로드
-    fetch("/api/regid")
-      .then((res) => res.json())
-      .then((rows: RegIdRow[]) => setRegidRows(rows))
-      .catch(console.error);
+    // ✅ 중기 기온
+    fetchMidTempForecast("11B10101")
+      .then((res) => setMidTempRaw(res.raw))
+      .catch((err) => setError(err.message));
   }, []);
-
-  useEffect(() => {
-    if (midRaw) {
-      console.log("중기예보 raw:", midRaw);
-    }
-  }, [midRaw]);
 
   if (error) return <p>에러 발생: {error}</p>;
 
   const todayStr = formatDate(new Date());
-
-  const todayCache = loadTodayHalfDayCache();
-
+  console.log(todayStr);
   const dayForecasts = days.map((d) => {
     const isToday = d.date === todayStr;
 
     const match = (r: ForecastRow, date: string, hour: "00" | "12") =>
       r.TM_EF.slice(0, 8) === date && r.TM_EF.slice(8, 10) === hour;
     const amRow = data.find((r) => match(r, d.date, "00")) ?? null;
-
     const pmRow = data.find((r) => match(r, d.date, "12")) ?? null;
 
     const normalizeTemp = (v: number | null) => (isValidTemp(v) ? v : null);
-
-    let am: HalfDayForecast = {
-      temp: normalizeTemp(amRow ? Number(amRow.TA) : null),
+    const am: HalfDayForecast = {
+      temp: amRow ? normalizeTemp(Number(amRow.TA)) : null,
       sky: amRow?.SKY ?? null,
       st: amRow?.ST !== undefined ? Number(amRow.ST) : null,
+      pref: amRow?.PREP !== undefined ? Number(amRow.PREP) : null,
     };
 
-    let pm: HalfDayForecast = {
-      temp: normalizeTemp(pmRow ? Number(pmRow.TA) : null),
+    const pm: HalfDayForecast = {
+      temp: pmRow ? normalizeTemp(Number(pmRow.TA)) : null,
       sky: pmRow?.SKY ?? null,
       st: pmRow?.ST !== undefined ? Number(pmRow.ST) : null,
+      pref: pmRow?.PREP !== undefined ? Number(pmRow.PREP) : null,
     };
-
-    // ✅ 오늘 데이터 fallback 처리
-    if (isToday && todayCache?.date === todayStr) {
-      if (!isValidTemp(am.temp)) {
-        am = todayCache.am ?? am;
-      }
-      if (!isValidTemp(pm.temp)) {
-        pm = todayCache.pm ?? pm;
-      }
-    }
-
-    // ✅ 오늘 데이터가 정상일 경우 캐시 저장
-    if (isToday) {
-      const nextCache: TodayHalfDayCache = {
-        date: todayStr,
-        am: null,
-        pm: null,
-      };
-
-      // 오전
-      if (isValidTemp(am.temp)) {
-        nextCache.am = am;
-      } else if (todayCache?.am && isValidTemp(todayCache.am.temp)) {
-        nextCache.am = todayCache.am;
-      }
-
-      // 오후
-      if (isValidTemp(pm.temp)) {
-        nextCache.pm = pm;
-      } else if (todayCache?.pm && isValidTemp(todayCache.pm.temp)) {
-        nextCache.pm = todayCache.pm;
-      }
-
-      saveTodayHalfDayCache(nextCache);
-    }
 
     return {
       dateLabel: d.label,
@@ -238,8 +244,6 @@ export default function ForecastPage() {
       pm,
     };
   });
-
-  console.log(dayForecasts);
 
   return (
     <main className="min-h-screen bg-white ">
@@ -258,6 +262,7 @@ export default function ForecastPage() {
                   priority
                 />
               </Link>
+              일기 예보
             </div>
 
             {/* 검색바 */}
@@ -271,8 +276,6 @@ export default function ForecastPage() {
                     regidRows,
                   );
                   //console.log("regId: ", regId);
-                  //const rows = await fetch3DayForecastClient(regId);
-                  //setData(rows);
                 } catch (err: any) {
                   console.error(err);
                   setError(err.message);
@@ -338,10 +341,14 @@ export default function ForecastPage() {
                         className="grid grid-cols-2 border-r border-gray-100"
                       >
                         <span>
-                          {d.am.sky ? skyToSimpleEmoji(d.am.sky) : "-"}
+                          {d.am.sky
+                            ? skyToSimpleEmoji(d.am.sky, d.am.pref)
+                            : "-"}
                         </span>
                         <span>
-                          {d.pm.sky ? skyToSimpleEmoji(d.pm.sky) : "-"}
+                          {d.pm.sky
+                            ? skyToSimpleEmoji(d.pm.sky, d.pm.pref)
+                            : "-"}
                         </span>
                       </div>
                     ))}
@@ -357,8 +364,12 @@ export default function ForecastPage() {
                         key={i}
                         className="grid grid-cols-2 border-r border-gray-100"
                       >
-                        <span>{d.am.st !== null ? `${d.am.st}%` : "-"}</span>
-                        <span>{d.pm.st !== null ? `${d.pm.st}%` : "-"}</span>
+                        <span className="text-blue-500">
+                          {d.am.temp !== null ? `${d.am.temp}°` : "-"}
+                        </span>
+                        <span className="text-red-500">
+                          {d.pm.temp !== null ? `${d.pm.temp}°` : "-"}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -381,6 +392,7 @@ export default function ForecastPage() {
                 </div>
               </div>
             </div>
+
             {/* 시간별 예보 
 
             <Fetch3Hours />

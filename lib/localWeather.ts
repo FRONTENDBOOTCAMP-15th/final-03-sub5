@@ -32,11 +32,11 @@ export function loadCurrentWeather(): StoredCurrentWeather | null {
   }
 }
 
-
 export type HalfDayForecast = {
   temp: number | null;
   sky: string | null;
   st: number | null;
+  pref: number | null;
 };
 
 export type TodayHalfDayCache = {
@@ -46,7 +46,6 @@ export type TodayHalfDayCache = {
 };
 
 const TODAY_HALF_DAY_KEY = "forecast:today:halfday";
-
 
 export function saveTodayHalfDayCache(cache: TodayHalfDayCache) {
   if (typeof window === "undefined") return;

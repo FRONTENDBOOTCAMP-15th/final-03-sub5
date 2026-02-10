@@ -213,7 +213,9 @@ export function getWeatherIcon({ caTot, ww }: WeatherInput): WeatherIconKey {
  * 3: 구름많음
  * 4: 흐림
  */
-export function getSKY({ caTot, ww }: WeatherInput): number {
+export function getSKY({ caTot, ww, wc }: WeatherInput): number {
+  // wc -> 5(가랑비),6(비),7(눈),8(소나기),9(뇌전)
+  if (wc >= 5 && wc <= 9) return wc;
   // 강수·현상 우선 처리 (비/눈/소나기 등 → 흐림)
   if (ww !== undefined) {
     // KMA WW 코드에서 강수/현상 범주
@@ -389,6 +391,16 @@ export function skyToEmoji(sky?: number, datetime?: Date): string {
         return "🌒"; // 구름많음 밤
       case 4:
         return "☁️"; // 흐린 밤
+      case 5:
+        return "🌦"; // 가랑비
+      case 6:
+        return "☔"; // 비
+      case 7:
+        return "❄"; // 눈
+      case 8:
+        return "⛈"; // 소나기
+      case 9:
+        return "⚡"; // 뇌전
       default:
         return "❓";
     }
@@ -404,27 +416,53 @@ export function skyToEmoji(sky?: number, datetime?: Date): string {
       return "⛅"; // 구름많음
     case 4:
       return "☁️"; // 흐림
+    case 5:
+      return "🌦"; // 가랑비
+    case 6:
+      return "☔"; // 비
+    case 7:
+      return "❄"; // 눈
+    case 8:
+      return "⛈"; // 소나기
+    case 9:
+      return "⚡"; // 뇌전
     default:
       return "❓";
   }
 }
 
-export function skyToSimpleEmoji(sky: string | null | undefined): string {
+export function skyToSimpleEmoji(
+  sky: string | null | undefined,
+  pref: number | null,
+): string {
+  /* ✅ pref 우선 처리 */
+  if (pref !== null) {
+    switch (pref) {
+      case 1:
+        return "☔"; // 비
+      case 2:
+        return "☔/❄"; // 비/눈
+      case 3:
+        return "❄"; // 눈
+      case 4:
+        return "❄/☔"; // 눈/비
+      default:
+        break; // pref 값이 있지만 의미 없으면 sky로 fallback
+    }
+  }
+
+  /* ✅ sky 처리 */
   switch (sky) {
     case "DB01":
-      return "☀️";
     case "WB01": // 맑음
       return "☀️";
     case "DB02":
-      return "🌤️";
     case "WB02": // 구름조금
       return "🌤️";
     case "DB03":
-      return "⛅";
     case "WB03": // 구름많음
       return "⛅";
     case "DB04":
-      return "☁️";
     case "WB04": // 흐림
       return "☁️";
     default:
@@ -436,7 +474,7 @@ export function formatDate(date: Date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return `${y}${m}${d}`;
+  return `${y}${m}${d}`;   //20260210 형식으로 반환
 }
 
 export function formatLabel(date: Date) {

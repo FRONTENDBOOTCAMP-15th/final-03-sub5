@@ -2,8 +2,18 @@ import { skyToSimpleEmoji } from "@/lib/utils";
 
 type DayForecast = {
   dateLabel: string;
-  am: { temp: number | null; sky: string | null; st: number | null };
-  pm: { temp: number | null; sky: string | null; st: number | null };
+  am: {
+    temp: number | null;
+    sky: string | null;
+    st: number | null;
+    pref: number | null;
+  };
+  pm: {
+    temp: number | null;
+    sky: string | null;
+    st: number | null;
+    pref: number | null;
+  };
 };
 
 export default function ShortTermColumns({
@@ -46,20 +56,20 @@ export default function ShortTermColumns({
           case "sky":
             return (
               <div key={i} className={`grid grid-cols-2 ${baseClass}`}>
-                <span>{d.am.sky ? skyToSimpleEmoji(d.am.sky) : "-"}</span>
-                <span>{d.pm.sky ? skyToSimpleEmoji(d.pm.sky) : "-"}</span>
+                <span>
+                  {d.am.sky ? skyToSimpleEmoji(d.am.sky, d.am.pref) : "-"}
+                </span>
+                <span>
+                  {d.pm.sky ? skyToSimpleEmoji(d.pm.sky, d.pm.pref) : "-"}
+                </span>
               </div>
             );
 
           case "temp":
             return (
               <div key={i} className={`grid grid-cols-2 px-1 ${baseClass}`}>
-                <span className="text-blue-500">
-                  {d.am.temp !== null ? `${d.am.temp}°` : "-"}
-                </span>
-                <span className="text-red-500">
-                  {d.pm.temp !== null ? `${d.pm.temp}°` : "-"}
-                </span>
+                <span>{d.am.temp !== null ? `${d.am.temp}°` : "-"}</span>
+                <span>{d.pm.temp !== null ? `${d.pm.temp}°` : "-"}</span>
               </div>
             );
 
