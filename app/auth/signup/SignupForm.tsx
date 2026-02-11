@@ -10,6 +10,7 @@ import Alert from "@/app/components/ui/Alert";
 
 import { useOnboardingStore } from "@/zustand/onboardingStore";
 import useAlert from "@/hooks/useAlert";
+import { useOnboardingStore } from "@/zustand/onboardingStore";
 
 export default function SignupForm() {
   const router = useRouter();
