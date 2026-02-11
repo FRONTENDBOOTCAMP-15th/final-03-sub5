@@ -4,7 +4,7 @@ export interface User {
   email: string;
   password: string;
   name: string;
-  image?: string;
+  image?: string | null;
   profileImage?: string | null;
   token?: {
     accessToken: string;

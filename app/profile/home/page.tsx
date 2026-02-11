@@ -69,7 +69,7 @@ export default function ProfileHome() {
           {/* 닉네임 + 수정 버튼 : area-profile */}
           <div className="area-profile p-4 m-2 flex items-center relative gap-8 pt-16">
             <Image
-              src={user?.profileImage || "/icons/profile-main.svg"}
+              src={user?.image || "/icons/profile-main.svg"}
               alt="프로필 이미지"
               width={30}
               height={30}

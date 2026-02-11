@@ -28,9 +28,7 @@ export default function ProfileEdit() {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
 
   // zustand 값으로 초기화
-  const [selectedImage, setSelectedImage] = useState(
-    user?.profileImage || null,
-  );
+  const [selectedImage, setSelectedImage] = useState(user?.image || null);
   const [gender, setGender] = useState(user?.extra?.gender || "male");
   const [nickname, setNickname] = useState(user?.name || "");
   const [birth, setBirth] = useState(user?.extra?.birthDate || "");
@@ -67,11 +65,11 @@ export default function ProfileEdit() {
     const updateResult = await fetchAPI(`/users/${user._id}`, {
       method: "PATCH",
       token: user.token.accessToken,
-      body: { profileImage: imagePath },
+      body: { image: imagePath },
     });
 
     if (updateResult.ok === 1) {
-      setUser({ ...user, profileImage: imagePath });
+      setUser({ ...user, image: imagePath });
     }
 
     // 업로드 완료 후 정리
@@ -87,12 +85,12 @@ export default function ProfileEdit() {
     const result = await fetchAPI(`/users/${user._id}`, {
       method: "PATCH",
       token: user.token.accessToken,
-      body: { profileImage: null },
+      body: { image: null },
     });
 
     if (result.ok === 1) {
       setSelectedImage(null);
-      setUser({ ...user, profileImage: null });
+      setUser({ ...user, image: null });
     } else {
       alert("사진 삭제 실패");
     }
@@ -108,7 +106,6 @@ export default function ProfileEdit() {
       token: user.token.accessToken,
       body: {
         name: nickname,
-        profileImage: selectedImage || undefined,
         extra: {
           gender: gender,
           birthDate: birth,
@@ -121,7 +118,6 @@ export default function ProfileEdit() {
       setUser({
         ...user,
         name: nickname,
-        profileImage: selectedImage,
         extra: {
           ...user.extra,
           gender: gender as "male" | "female",

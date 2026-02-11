@@ -5,8 +5,14 @@ import fetchAPI from "@/app/lib/api";
 import ProfileHeader from "@/app/profile/components/ProfileHeader";
 import { Notice, Post } from "@/types/post";
 import useUserStore from "@/zustand/user";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+
 import { use, useEffect, useState } from "react";
+
+// 날짜 형식 변경 - 연도/월/일만 표시
+const formatDate = (dateString: string) => {
+  return dateString.split(" ")[0]; // 공백 기준으로 자르기
+};
 
 export default function NoticePost({
   params,
@@ -54,7 +60,7 @@ export default function NoticePost({
       });
 
       if (result.ok === 1) {
-        if (result.item.type != "notice") {
+        if (result.item.type !== "notice") {
           alert("잘못된 접근입니다.");
           router.back();
           return;
@@ -95,6 +101,50 @@ export default function NoticePost({
   };
 
   // ■ 공지사항 삭제
+  const handleDelete = async () => {
+    if (!token) return;
+
+    const result = await fetchAPI(`/posts/${noticeId}`, {
+      method: "DELETE",
+      token: token,
+    });
+
+    if (result.ok === 1) {
+      alert("삭제되었습니다.");
+      router.push("/profile/board/inquiry-board");
+    }
+    closeDeleteModal();
+  };
+
+  // ■ 로딩 중 처리
+  if (isLoading) {
+    return (
+      <>
+        <ProfileHeader title="공지사항" />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="border border-gray-200 rounded-[20px] px-20 py-10 text-gray-500 font-semibold text-center w-full">
+            불러오는 중...
+          </p>
+        </div>
+        <Navi />
+      </>
+    );
+  }
+
+  // ■ 공지사항 없음
+  if (!notice) {
+    return (
+      <>
+        <ProfileHeader title="공지사항" />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="border border-gray-200 rounded-[20px] px-12 py-8 text-gray-500 font-semibold">
+            공지사항을 찾을 수 없습니다.
+          </p>
+        </div>
+        <Navi />
+      </>
+    );
+  }
 
   return (
     <>
@@ -122,7 +172,8 @@ export default function NoticePost({
           </div>
           {/* 관리자 + 날짜 */}
           <p className="text-sm text-gray-500">
-            관리자 &nbsp;|&nbsp; {notice.createdAt}
+            {notice?.user?.name || "관리자"} &nbsp;|&nbsp;{" "}
+            {formatDate(notice.createdAt)}
           </p>
 
           {isEditing ? (
@@ -137,20 +188,17 @@ export default function NoticePost({
             </p>
           )}
         </section>
-        <div className="flex gap-4 ml-auto mt-auto mb-16 px-4">
-          {isAdmin && (
+
+        {/* 관리자만 수정, 삭제 버튼 표시 */}
+        {isAdmin && (
+          <div className="flex gap-4 ml-auto mt-auto mb-16 px-4">
             <button
               type="button"
               className="border border-gray-400 rounded-md py-1 px-2 cursor-pointer"
-              onClick={() => {
-                setIsEditing(!isEditing);
-              }}
+              onClick={handleEdit}
             >
               {isEditing ? "저장" : "수정"}
             </button>
-          )}
-
-          {isAdmin && (
             <button
               type="button"
               className="border border-[#e85c5c] bg-[#e85c5c] text-white rounded-md py-1 px-2 cursor-pointer"
@@ -158,8 +206,8 @@ export default function NoticePost({
             >
               삭제
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* ●●●●● 공지 삭제 모달창 */}
         {isDeleteModalOpen && (
@@ -191,6 +239,7 @@ export default function NoticePost({
                   <button
                     type="button"
                     className="w-1/2 border border-[#e85c5c] rounded-[5px] py-2 bg-[#e85c5c] text-white cursor-pointer"
+                    onClick={handleDelete}
                   >
                     삭제
                   </button>
