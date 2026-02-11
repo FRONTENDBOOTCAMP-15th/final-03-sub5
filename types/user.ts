@@ -1,11 +1,10 @@
 // 사용자 정보 인터페이스
 export interface User {
   _id: number;
-
   email: string;
-  password: string;
   name: string;
   image?: string;
+  profileImage?: string | null;
   token?: {
     accessToken: string;
     refreshToken: string;
@@ -17,6 +16,7 @@ export interface User {
     height?: number;
     weight?: number;
     onboardingDone?: boolean;
+    role?: "user" | "admin";
   };
 }
 
