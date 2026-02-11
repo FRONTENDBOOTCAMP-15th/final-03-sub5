@@ -1,6 +1,5 @@
 "use client";
 
-import Modal from "../components/Modal";
 import GoalStats from "@/app/goals/my/components/GoalStats";
 import GoalFilter from "@/app/goals/my/components/GoalFilter";
 import GoalCard from "@/app/goals/my/components/GoalCard";
@@ -44,7 +43,6 @@ export default function GoalListPage() {
           <GoalFilter />
           <GoalCard />
         </div>
-        <Modal />
       </main>
     </>
   );
