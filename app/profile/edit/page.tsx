@@ -33,10 +33,10 @@ export default function ProfileEdit() {
   const [nickname, setNickname] = useState(user?.name || "");
   const [birth, setBirth] = useState(user?.extra?.birthDate || "");
 
-  // 🔥 임시 파일 저장
+  // 임시 파일 저장
   const [tempFile, setTempFile] = useState<File | null>(null);
 
-  // 🔥 파일 선택 시 미리보기만 업데이트
+  // 파일 선택 시 미리보기만 업데이트
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // 파일 가져오기
     if (!file) return;
@@ -45,9 +45,9 @@ export default function ProfileEdit() {
     const imageUrl = URL.createObjectURL(file);
     setSelectedImage(imageUrl); // state 업데이트
     setTempFile(file); // 파일 임시 저장
-  }; // 🔥 여기서 handleFileChange 끝!
+  };
 
-  // 🔥 "변경" 버튼 클릭 시 실제 업로드 실행 (별도 함수)
+  // "변경" 버튼 클릭 시 실제 업로드 실행 (별도 함수)
   const handleConfirmUpload = async () => {
     if (!tempFile || !user?.token?.accessToken) return;
 
