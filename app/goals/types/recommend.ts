@@ -85,6 +85,7 @@ export const goalData = [
     level: "중급",
     goalType: "pace",
     targetPace: "4:55",
+    prerequisiteId: 8,
   },
   {
     id: 10,
@@ -168,6 +169,7 @@ export const goalData = [
     level: "고급",
     goalType: "pace",
     targetPace: "4:10",
+    prerequisiteId: 17,
   },
   {
     id: 19,
