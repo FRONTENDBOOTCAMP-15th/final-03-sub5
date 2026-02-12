@@ -36,13 +36,6 @@ export default function PostDetailPage({
   const isAdmin = user?.extra?.role === "admin" || false;
   const isAuthor = post?.user._id === user?._id || false;
 
-  // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←← 여기에 추가
-  useEffect(() => {
-    console.log("현재 user:", user);
-    console.log("isAdmin:", isAdmin);
-    console.log("isAuthor:", isAuthor);
-  }, [user, isAdmin, isAuthor]);
-
   // 모달
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false); // 답변 모달
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 삭제 모달
