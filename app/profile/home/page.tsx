@@ -6,18 +6,18 @@ import useUserStore from "@/zustand/user";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useGetRecords } from "@/app/hooks/useGetRecords"; // 🔴 추가
+import { useGetRecords } from "@/app/hooks/useGetRecords";
 
 export default function ProfileHome() {
   const { user, setUser } = useUserStore();
   const [hydrated, setHydrated] = useState(false);
-  const { data } = useGetRecords(); // 🔴 추가
+  const { data } = useGetRecords();
 
-  // 🔴 간단한 통계만 계산
+  // 통계 계산
   const totalRuns = data.length;
   const totalDays = new Set(data.map((r) => r.extra?.date).filter(Boolean))
     .size;
-  const recentDistance = data[0]?.extra?.distance || "0.00"; // 🔴 가장 최근 기록
+  const recentDistance = data[0]?.extra?.distance || "0.00"; // 가장 최근 기록
 
   useEffect(() => {
     setHydrated(true);

@@ -78,7 +78,7 @@ export default function ProfileRecord() {
             <button
               className="flex items-center justify-between px-7 gap-2 w-full cursor-pointer"
               onClick={() => {
-                setTempHeight(user?.extra?.height || 183); // 💀 추가
+                setTempHeight(user?.extra?.height || 183);
                 setIsHeightSheetOpen(true);
               }}
             >
@@ -94,7 +94,7 @@ export default function ProfileRecord() {
             <button
               className="flex items-center justify-between px-7 gap-2 w-full cursor-pointer"
               onClick={() => {
-                setTempWeight(user?.extra?.weight || 80); // 💀 추가
+                setTempWeight(user?.extra?.weight || 80);
                 setIsWeightSheetOpen(true);
               }}
             >
