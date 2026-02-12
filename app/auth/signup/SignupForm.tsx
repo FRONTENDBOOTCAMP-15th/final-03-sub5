@@ -155,9 +155,19 @@ export default function SignupForm() {
                 className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500"
               >
                 {showPassword ? (
-                  <Image src="/icons/eye_off.svg" alt="숨김" width={20} height={20} />
+                  <Image
+                    src="/icons/eye.svg"
+                    alt="숨김"
+                    width={20}
+                    height={20}
+                  />
                 ) : (
-                  <Image src="/icons/eye.svg" alt="보임" width={20} height={20} />
+                  <Image
+                    src="/icons/eye_off.svg"
+                    alt="보임"
+                    width={20}
+                    height={20}
+                  />
                 )}
               </button>
             </div>
@@ -188,9 +198,19 @@ export default function SignupForm() {
                 className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500"
               >
                 {showPasswordConfirm ? (
-                  <Image src="/icons/eye_off.svg" alt="숨김" width={20} height={20} />
+                  <Image
+                    src="/icons/eye.svg"
+                    alt="숨김"
+                    width={20}
+                    height={20}
+                  />
                 ) : (
-                  <Image src="/icons/eye.svg" alt="보임" width={20} height={20} />
+                  <Image
+                    src="/icons/eye_off.svg"
+                    alt="보임"
+                    width={20}
+                    height={20}
+                  />
                 )}
               </button>
             </div>
