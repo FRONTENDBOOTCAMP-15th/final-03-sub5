@@ -26,6 +26,12 @@ export default function InquiryListPage() {
   const token = user?.token?.accessToken;
   const isAdmin = user?.extra?.role === "admin" || false;
 
+  // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←← 여기에 추가
+  useEffect(() => {
+    console.log("현재 user:", user);
+    console.log("isAdmin:", isAdmin);
+  }, [user, isAdmin]);
+
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState("");
