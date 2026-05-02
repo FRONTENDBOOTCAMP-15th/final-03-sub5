@@ -12,10 +12,10 @@ jobs:
     strategy:
       matrix:
         repo:
-          - owner: OWNER_MATTHEW
-            name: REPO_MATTHEW
-            token: TOKEN_MATTHEW
-            email: EMAIL_MATTHEW
+          # - owner: OWNER_MATTHEW
+          #   name: REPO_MATTHEW
+          #   token: TOKEN_MATTHEW
+          #   email: EMAIL_MATTHEW
           - owner: OWNER_RYU_HYEJIN
             name: REPO_RYU_HYEJIN
             token: TOKEN_RYU_HYEJIN
